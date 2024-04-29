@@ -135,6 +135,8 @@ stages:
             zipAfterPublish: true
 
     - job: SaveToArtifactJob
+      dependsOn: PublishJob
+      condition: succeeded()
       displayName: 'SaveToArtifact Job'
       steps:
         - publish: '$(Build.ArtifactStagingDirectory)'
