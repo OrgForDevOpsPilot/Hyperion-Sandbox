@@ -33,11 +33,14 @@ stages:
     - job: BuildJob
       displayName: 'Build Job'
       steps:
-#        # .NETプロジェクトのビルドを実行
-#        - script: |
-#            cd webapp/webapp
-#            dotnet build --configuration $(buildConfiguration)
-#          displayName: 'dotnet build $(buildConfiguration)'      # タスクの表示名
+        - script: |
+            cd webapp/webapp
+            dotnet build --configuration $(buildConfiguration)
+          displayName: 'dotnet build $(buildConfiguration)'
+
+    - job: UnitTestJob
+      displayName: 'UnitTest Job'
+      steps:
         - task: UseDotNet@2
           displayName: 'Use .NET SDK $(dotnetSdkVersion)'
           inputs:
@@ -56,9 +59,6 @@ stages:
             arguments: '--no-restore --configuration $(buildConfiguration)'
             projects: 'webapp/webtest/*.csproj'
 
-    - job: UnitTestJob
-      displayName: 'UnitTest Job'
-      steps:
         - task: DotNetCoreCLI@2
           displayName: 'Run unit tests - $(buildConfiguration)'
           inputs:
