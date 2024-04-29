@@ -30,7 +30,7 @@ stages:
   - stage: 'Build'
     displayName: 'Build the web application'
     jobs:
-    - job: Build
+    - job: BuildJob
       displayName: 'Build Job'
       steps:
 #        # .NETプロジェクトのビルドを実行
@@ -56,6 +56,9 @@ stages:
             arguments: '--no-restore --configuration $(buildConfiguration)'
             projects: 'webapp/webtest/*.csproj'
 
+    - job: UnitTestJob
+      displayName: 'UnitTest Job'
+      steps:
         - task: DotNetCoreCLI@2
           displayName: 'Run unit tests - $(buildConfiguration)'
           inputs:
@@ -129,6 +132,9 @@ stages:
             arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
             zipAfterPublish: true
 
+    - job: SaveToArtifactJob
+      displayName: 'SaveToArtifact Job'
+      steps:
         - publish: '$(Build.ArtifactStagingDirectory)'
           artifact: drop
 
