@@ -134,11 +134,6 @@ stages:
             arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
             zipAfterPublish: true
 
-    - job: SaveToArtifactJob
-      dependsOn: PublishJob
-      condition: succeeded()
-      displayName: 'SaveToArtifact Job'
-      steps:
         - publish: '$(Build.ArtifactStagingDirectory)'
           artifact: drop
 
