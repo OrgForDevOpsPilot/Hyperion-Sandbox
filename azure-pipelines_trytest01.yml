@@ -49,14 +49,14 @@ stages:
           displayName: 'Restore project dependencies'
           inputs:
             command: 'restore'
-            projects: 'webapp/webapp/*.csproj'
+            projects: 'webapp/webtest/*.csproj'
 
         - task: DotNetCoreCLI@2
           displayName: 'Build the project - $(buildConfiguration)'
           inputs:
             command: 'build'
             arguments: '--no-restore --configuration $(buildConfiguration)'
-            projects: 'webapp/webapp/*.csproj'
+            projects: 'webapp/webtest/*.csproj'
 # ビルド
 #  - stage: UnitTest
 #    jobs:
