@@ -77,10 +77,10 @@ stages:
             targetType: 'inline'
             script: 'reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"'
 
-        - task: PublishCodeCoverageResults@1
+        - task: PublishCodeCoverageResults@2
           displayName: 'Public Code Coverage Results'
           inputs:
-            codeCoverageTool: 'Cobertura'
+#            codeCoverageTool: 'Cobertura'
             summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
 
 #  - stage: 'Analyze'
