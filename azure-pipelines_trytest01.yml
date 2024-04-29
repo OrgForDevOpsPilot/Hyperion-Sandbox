@@ -37,7 +37,7 @@ stages:
       steps:
         # .NETプロジェクトのビルドを実行
         - script: |
-            cd webapp\webapp
+            cd webapp/webapp
             dotnet build --configuration $(buildConfiguration)
           displayName: 'dotnet build $(buildConfiguration)'      # タスクの表示名
 
