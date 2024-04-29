@@ -71,9 +71,9 @@ stages:
           displayName: 'Publish the project - $(buildConfiguration)'
           inputs:
             command: 'publish'
-            projects: 'webapp/webtest.csproj'
+            projects: 'webapp/webapp.csproj'
             publishWebProjects: false
-            arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+            arguments: '--build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
             zipAfterPublish: true
 
         - publish: '$(Build.ArtifactStagingDirectory)'
