@@ -8,12 +8,9 @@ trigger:
 
 # パイプライン変数の定義
 variables:
-  - name: deploymentDefaultLocation
-    value: japaneast              # デフォルトのデプロイメント位置を 'japaneast' に設定
-  - name: buildConfiguration
-    value: Release                # ビルド構成を 'Release' に設定
-  - name: ServiceConnectionName
-    value: avanadeosadatest_Tenant_Connection
+  deploymentDefaultLocation: 'japaneast'
+  buildConfiguration: 'Release'
+  ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
 
 pool:
   vmImage: ubuntu-latest
