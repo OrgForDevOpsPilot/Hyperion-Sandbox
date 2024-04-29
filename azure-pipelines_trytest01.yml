@@ -48,17 +48,20 @@ stages:
       steps:
         # .NETプロジェクトのビルドを実行
         - script: |
-            cd webtest/webtest
+            cd webapp/webtest
             dotnet build --configuration $(buildConfiguration)
           displayName: 'dotnet build $(buildConfiguration)'
-        - task: DotNetCoreCLI@2
-          displayName: 'Run unit tests - $(buildConfiguration)'
-          inputs:
-            command: 'test'
-            arguments: '--no-build --configuration $(buildConfiguration)'
-            publishTestResults: true
-            projects: '**/*.Test.csproj'
-
+#        - task: DotNetCoreCLI@2
+#          displayName: 'Run unit tests - $(buildConfiguration)'
+#          inputs:
+#            command: 'test'
+#            arguments: '--no-build --configuration $(buildConfiguration)'
+#            publishTestResults: true
+#            projects: '**/*.Test.csproj'
+        - script: |
+            cd webapp/webtest
+            dotnet test --configuration $(buildConfiguration) --no-build --logger trx
+          displayName: 'unit test'
 
 # ビルド成果物のパッケージングと公開
   - stage: PackageAndPublishArtifact
