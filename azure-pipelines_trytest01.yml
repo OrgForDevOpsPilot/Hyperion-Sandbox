@@ -34,59 +34,64 @@ stages:
     - job: Build
       displayName: 'Build'
       steps:
-        # .NETプロジェクトのビルドを実行
-        - script: |
-            cd webapp/webapp
-            dotnet build --configuration $(buildConfiguration)
-          displayName: 'dotnet build $(buildConfiguration)'      # タスクの表示名
-
-# ビルド
-  - stage: UnitTest
-    jobs:
-    - job: UnitTest
-      displayName: 'UnitTest'
-      steps:
-        # .NETプロジェクトのビルドを実行
-        - script: |
-            cd webapp/webtest
-            dotnet build --configuration $(buildConfiguration)
-          displayName: 'dotnet build $(buildConfiguration)'
-#        - task: DotNetCoreCLI@2
-#          displayName: 'Run unit tests - $(buildConfiguration)'
-#          inputs:
-#            command: 'test'
-#            arguments: '--no-build --configuration $(buildConfiguration)'
-#            publishTestResults: true
-#            projects: '**/*.Test.csproj'
-        - script: |
-            cd webapp/webtest
-            dotnet test --configuration $(buildConfiguration) --no-build --logger trx
-          displayName: 'unit test'
-
-# ビルド成果物のパッケージングと公開
-  - stage: PackageAndPublishArtifact
-    jobs:
-    - job: PackageAndPublishArtifact
-      displayName: 'PackageAndPublishArtifact'
-      steps:
-        # .NETプロジェクトのパブリッシュを実行
+#        # .NETプロジェクトのビルドを実行
+#        - script: |
+#            cd webapp/webapp
+#            dotnet build --configuration $(buildConfiguration)
+#          displayName: 'dotnet build $(buildConfiguration)'      # タスクの表示名
         - task: DotNetCoreCLI@2
+          displayName: 'Build the project - $(buildConfiguration)'
           inputs:
-            command: 'publish'
-            publishWebProjects: true                             # Webプロジェクトをパブリッシュ
-            projects: '**/*.csproj'                              # プロジェクトファイルのパス
-            arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+            command: 'build'
+            arguments: '--no-restore --configuration $(buildConfiguration)'
+            projects: 'webapp/webtest/*.csproj'
+# ビルド
+#  - stage: UnitTest
+#    jobs:
+#    - job: UnitTest
+#      displayName: 'UnitTest'
+#      steps:
+#        # .NETプロジェクトのビルドを実行
+#        - script: |
+#            cd webapp/webtest
+#            dotnet build --configuration $(buildConfiguration)
+#          displayName: 'dotnet build $(buildConfiguration)'
+##        - task: DotNetCoreCLI@2
+##          displayName: 'Run unit tests - $(buildConfiguration)'
+##          inputs:
+##            command: 'test'
+##            arguments: '--no-build --configuration $(buildConfiguration)'
+##            publishTestResults: true
+##            projects: '**/*.Test.csproj'
+#        - script: |
+#            cd webapp/webtest
+#            dotnet test --configuration $(buildConfiguration) --no-build --logger trx
+#          displayName: 'unit test'
 
-# デプロイ
-  - stage: DeployToStaging
-    jobs:
-    - job: DeployToStaging
-      displayName: 'DeployToStaging'
-      steps:
-        # Azure Web Appへのデプロイを実行
-        - task: AzureWebApp@1
-          inputs:
-            azureSubscription: $(ServiceConnectionName)           # Azureサービス接続名
-            appType: 'webAppLinux'                                # アプリケーションタイプ
-            appName: 'asp-az400-book'                       # アプリケーション名
-            package: '$(Build.ArtifactStagingDirectory)/**/*.zip' # デプロイパッケージ
+## ビルド成果物のパッケージングと公開
+#  - stage: PackageAndPublishArtifact
+#    jobs:
+#    - job: PackageAndPublishArtifact
+#      displayName: 'PackageAndPublishArtifact'
+#      steps:
+#        # .NETプロジェクトのパブリッシュを実行
+#        - task: DotNetCoreCLI@2
+#          inputs:
+#            command: 'publish'
+#            publishWebProjects: true                             # Webプロジェクトをパブリッシュ
+#            projects: '**/*.csproj'                              # プロジェクトファイルのパス
+#            arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+## デプロイ
+#  - stage: DeployToStaging
+#    jobs:
+#    - job: DeployToStaging
+#      displayName: 'DeployToStaging'
+#      steps:
+#        # Azure Web Appへのデプロイを実行
+#       - task: AzureWebApp@1
+#          inputs:
+#            azureSubscription: $(ServiceConnectionName)           # Azureサービス接続名
+#            appType: 'webAppLinux'                                # アプリケーションタイプ
+#            appName: 'asp-az400-book'                       # アプリケーション名
+#            package: '$(Build.ArtifactStagingDirectory)/**/*.zip' # デプロイパッケージ
