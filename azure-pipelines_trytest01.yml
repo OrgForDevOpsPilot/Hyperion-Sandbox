@@ -80,7 +80,6 @@ stages:
           artifact: drop
 
 
-
 # ビルド
 #  - stage: UnitTest
 #    jobs:
