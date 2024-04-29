@@ -6,6 +6,15 @@
 trigger:
 - main
 
+# パイプライン変数の定義
+variables:
+  - name: deploymentDefaultLocation
+    value: japaneast              # デフォルトのデプロイメント位置を 'japaneast' に設定
+  - name: buildConfiguration
+    value: Release                # ビルド構成を 'Release' に設定
+  - name: ServiceConnectionName
+    value: avanadeosadatest_Tenant_Connection
+
 pool:
   vmImage: ubuntu-latest
 
@@ -21,3 +30,29 @@ stages:
           echo Add other tasks to build, test, and deploy your project.
           echo See https://aka.ms/yaml
         displayName: 'Run a multi-line script'
+  - stage: Build
+    jobs:
+    - job: Build
+      displayName: 'Build'
+      steps:
+        # .NETプロジェクトのビルドを実行
+        - script: |
+            cd webapp\webapp
+            dotnet build --configuration $(buildConfiguration)
+          displayName: 'dotnet build $(buildConfiguration)'      # タスクの表示名
+
+        # .NETプロジェクトのパブリッシュを実行
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'publish'
+            publishWebProjects: true                             # Webプロジェクトをパブリッシュ
+            projects: '**/*.csproj'                              # プロジェクトファイルのパス
+            arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+        # Azure Web Appへのデプロイを実行
+        - task: AzureWebApp@1
+          inputs:
+            azureSubscription: $(ServiceConnectionName)           # Azureサービス接続名
+            appType: 'webAppLinux'                                # アプリケーションタイプ
+            appName: 'asp-az400-book'                       # アプリケーション名
+            package: '$(Build.ArtifactStagingDirectory)/**/*.zip' # デプロイパッケージ
