@@ -27,10 +27,10 @@ stages:
         - task: SonarCloudPrepare@1
           inputs:
             SonarCloud: 'sonarcloud'
-            organization: 'freeplanets'
+            organization: 'AZ400-Book'
             scannerMode: 'MSBuild'
-            projectKey: 'DevOpsSimaOH_PartsUnlimited'
-            projectName: 'PartsUnlimited'
+            projectKey: 'freeplanets_Hyperion'
+#            projectName: 'AZ400-Book'
 
         - task: VSBuild@1
           inputs:
