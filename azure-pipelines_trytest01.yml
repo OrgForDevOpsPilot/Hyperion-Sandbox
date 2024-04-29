@@ -1,26 +1,23 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
-# パイプライン変数の定義
 variables:
   deploymentDefaultLocation: 'japaneast'
   buildConfiguration: 'Release'
   ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
   dotnetSdkVersion: '6.x'
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
 
 pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: Hello
+# Prepare
+  - stage: 'Prepare'
     jobs:
-    - job: osadatest01
-      displayName: 'osadatest01'
+    - job: HelloWorldJob
+      displayName: 'Hello World Job'
       steps:
       - script: echo Hello, world!
         displayName: 'Run a one-line script'
@@ -29,7 +26,7 @@ stages:
           echo See https://aka.ms/yaml
         displayName: 'Run a multi-line script'
 
-# ビルド
+# Build
   - stage: 'Build'
     displayName: 'Build the web application'
     jobs:
@@ -73,7 +70,6 @@ stages:
             targetType: 'inline'
             script: |
               dotnet tool install --global dotnet-reportgenerator-globaltool
-                
 
         - task: PowerShell@2
           displayName: 'Execute ReportGenerator Code Coverage Command'
@@ -87,6 +83,43 @@ stages:
             codeCoverageTool: 'Cobertura'
             summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
 
+#  - stage: 'Analyze'
+#    jobs:
+#    - job: AnalyzeJob
+#      displayName: 'Analyze Job'
+#      steps:
+#        - task: NuGetToolInstaller@1
+#
+#        - task: NuGetCommand@2
+#          inputs:
+#            restoreSolution: '$(solution)'
+#
+#        - task: SonarCloudPrepare@1
+#          inputs:
+#            SonarCloud: 'sonarcloud'
+#            organization: 'devopssimaoh'
+#            scannerMode: 'MSBuild'
+#            projectKey: 'DevOpsSimaOH_PartsUnlimited'
+#            projectName: 'PartsUnlimited'
+#
+#        - task: VSBuild@1
+#          inputs:
+#            solution: '$(solution)'
+#            msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+#            platform: '$(buildPlatform)'
+#            configuration: '$(buildConfiguration)'
+#
+#        - task: SonarCloudAnalyze@1
+#
+#        - task: SonarCloudPublish@1
+#          inputs:
+#            pollingTimeoutSec: '300'
+
+  - stage: 'Publish'
+    jobs:
+    - job: PublishJob
+      displayName: 'Publish Job'
+      steps:
         - task: DotNetCoreCLI@2
           displayName: 'Publish the project - $(buildConfiguration)'
           inputs:
@@ -99,7 +132,7 @@ stages:
         - publish: '$(Build.ArtifactStagingDirectory)'
           artifact: drop
 
-  - stage: 'Dev'
+  - stage: 'DeployToDev'
     displayName: 'Deploy to the dev environment'
     dependsOn: Build
     condition:  succeeded()
