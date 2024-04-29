@@ -30,10 +30,11 @@ stages:
         displayName: 'Run a multi-line script'
 
 # ビルド
-  - stage: Build
+  - stage: 'Build'
+    displayName: 'Build the web application'
     jobs:
     - job: Build
-      displayName: 'Build'
+      displayName: 'Build Job'
       steps:
 #        # .NETプロジェクトのビルドを実行
 #        - script: |
@@ -65,6 +66,21 @@ stages:
             arguments: '--no-build --configuration $(buildConfiguration)'
             publishTestResults: true
             projects: 'webapp/webtest/webtest.csproj'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Publish the project - $(buildConfiguration)'
+          inputs:
+            command: 'publish'
+            projects: 'webapp/webtest.csproj'
+            publishWebProjects: false
+            arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+            zipAfterPublish: true
+
+        - publish: '$(Build.ArtifactStagingDirectory)'
+          artifact: drop
+
+
+
 # ビルド
 #  - stage: UnitTest
 #    jobs:
