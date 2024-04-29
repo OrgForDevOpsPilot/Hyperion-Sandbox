@@ -11,6 +11,7 @@ variables:
   deploymentDefaultLocation: 'japaneast'
   buildConfiguration: 'Release'
   ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
+  dotnetSdkVersion: '6.x'
 
 pool:
   vmImage: ubuntu-latest
@@ -39,6 +40,17 @@ stages:
 #            cd webapp/webapp
 #            dotnet build --configuration $(buildConfiguration)
 #          displayName: 'dotnet build $(buildConfiguration)'      # タスクの表示名
+        - task: UseDotNet@2
+          displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+          inputs:
+            version: '$(dotnetSdkVersion)'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Restore project dependencies'
+          inputs:
+            command: 'restore'
+            projects: 'webapp/webapp/*.csproj'
+
         - task: DotNetCoreCLI@2
           displayName: 'Build the project - $(buildConfiguration)'
           inputs:
