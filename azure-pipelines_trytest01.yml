@@ -1,5 +1,5 @@
 trigger:
-- main
+- none
 
 variables:
   deploymentDefaultLocation: 'japaneast'
@@ -39,6 +39,8 @@ stages:
           displayName: 'dotnet build $(buildConfiguration)'
 
     - job: UnitTestJob
+      dependsOn: BuildJob
+      condition: succeeded()
       displayName: 'UnitTest Job'
       steps:
         - task: UseDotNet@2
