@@ -67,6 +67,12 @@ stages:
             publishTestResults: true
             projects: 'webapp/webtest/webtest.csproj'
 
+        - task: PublishTestResults@2
+          inputs:
+            testRunner: XUnit
+            testResultsFiles: ./test-results.xml
+            testRunTitle: 'test result'
+
         - task: DotNetCoreCLI@2
           displayName: 'Publish the project - $(buildConfiguration)'
           inputs:
