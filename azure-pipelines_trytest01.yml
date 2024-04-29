@@ -44,7 +44,7 @@ stages:
           inputs:
             command: 'build'
             arguments: '--no-restore --configuration $(buildConfiguration)'
-            projects: 'webapp/webtest/*.csproj'
+            projects: 'webapp/webapp/*.csproj'
 # ビルド
 #  - stage: UnitTest
 #    jobs:
