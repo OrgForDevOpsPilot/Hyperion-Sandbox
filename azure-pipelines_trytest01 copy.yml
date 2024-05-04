@@ -13,41 +13,21 @@ pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: 'Analyze'
+# Prepare
+  - stage: 'Prepare'
     jobs:
-    - job: AnalyzeJob
-      displayName: 'Analyze Job'
+    - job: HelloWorldJob
+      displayName: 'Hello World Job'
       steps:
-        - task: NuGetToolInstaller@1
-
-        - task: NuGetCommand@2
-          inputs:
-            restoreSolution: '$(solution)'
-
-        - task: SonarCloudPrepare@1
-          inputs:
-            SonarCloud: 'SonarCloud-Connection'
-            organization: 'az400-book'
-            scannerMode: 'MSBuild'
-            projectKey: 'freeplanets_Hyperion'
-            projectName: 'Hyperion'
-
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'build'
-            projects: '**/*.csproj'
-            arguments: '--configuration $(buildConfiguration)'
-
-        - task: SonarCloudAnalyze@1
-
-        - task: SonarCloudPublish@1
-          inputs:
-            pollingTimeoutSec: '300'
+      - script: echo Hello, world!
+        displayName: 'Run a one-line script'
+      - script: |
+          echo Add other tasks to build, test, and deploy your project.
+          echo See https://aka.ms/yaml
+        displayName: 'Run a multi-line script'
 
 # Build
   - stage: 'Build'
-    dependsOn: Analyze
-    condition:  succeeded()
     displayName: 'Build the web application'
     jobs:
     - job: BuildJob
@@ -107,6 +87,39 @@ stages:
           inputs:
 #            codeCoverageTool: 'Cobertura'
             summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+
+  - stage: 'Analyze'
+    dependsOn: Build
+    condition:  succeeded()
+    jobs:
+    - job: AnalyzeJob
+      displayName: 'Analyze Job'
+      steps:
+        - task: NuGetToolInstaller@1
+
+        - task: NuGetCommand@2
+          inputs:
+            restoreSolution: '$(solution)'
+
+        - task: SonarCloudPrepare@1
+          inputs:
+            SonarCloud: 'SonarCloud-Connection'
+            organization: 'az400-book'
+            scannerMode: 'MSBuild'
+            projectKey: 'freeplanets_Hyperion'
+            projectName: 'Hyperion'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'build'
+            projects: '**/*.csproj'
+            arguments: '--configuration $(buildConfiguration)'
+
+        - task: SonarCloudAnalyze@1
+
+        - task: SonarCloudPublish@1
+          inputs:
+            pollingTimeoutSec: '300'
 
   - stage: 'Publish'
     dependsOn: Build
