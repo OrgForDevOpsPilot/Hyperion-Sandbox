@@ -89,6 +89,8 @@ stages:
             summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
 
   - stage: 'Analyze'
+    dependsOn: Build
+    condition:  succeeded()
     jobs:
     - job: AnalyzeJob
       displayName: 'Analyze Job'
@@ -120,6 +122,8 @@ stages:
             pollingTimeoutSec: '300'
 
   - stage: 'Publish'
+    dependsOn: Build
+    condition:  succeeded()
     jobs:
     - job: PublishJob
       displayName: 'Publish Job'
@@ -160,53 +164,3 @@ stages:
                 appType: 'webAppLinux'
                 appName: 'asp-az400-book'
                 package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/webapp.zip'
-# ビルド
-#  - stage: UnitTest
-#    jobs:
-#    - job: UnitTest
-#      displayName: 'UnitTest'
-#      steps:
-#        # .NETプロジェクトのビルドを実行
-#        - script: |
-#            cd webapp/webtest
-#            dotnet build --configuration $(buildConfiguration)
-#          displayName: 'dotnet build $(buildConfiguration)'
-##        - task: DotNetCoreCLI@2
-##          displayName: 'Run unit tests - $(buildConfiguration)'
-##          inputs:
-##            command: 'test'
-##            arguments: '--no-build --configuration $(buildConfiguration)'
-##            publishTestResults: true
-##            projects: '**/*.Test.csproj'
-#        - script: |
-#            cd webapp/webtest
-#            dotnet test --configuration $(buildConfiguration) --no-build --logger trx
-#          displayName: 'unit test'
-
-## ビルド成果物のパッケージングと公開
-#  - stage: PackageAndPublishArtifact
-#    jobs:
-#    - job: PackageAndPublishArtifact
-#      displayName: 'PackageAndPublishArtifact'
-#      steps:
-#        # .NETプロジェクトのパブリッシュを実行
-#        - task: DotNetCoreCLI@2
-#          inputs:
-#            command: 'publish'
-#            publishWebProjects: true                             # Webプロジェクトをパブリッシュ
-#            projects: '**/*.csproj'                              # プロジェクトファイルのパス
-#            arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-
-## デプロイ
-#  - stage: DeployToStaging
-#    jobs:
-#    - job: DeployToStaging
-#      displayName: 'DeployToStaging'
-#      steps:
-#        # Azure Web Appへのデプロイを実行
-#       - task: AzureWebApp@1
-#          inputs:
-#            azureSubscription: $(ServiceConnectionName)           # Azureサービス接続名
-#            appType: 'webAppLinux'                                # アプリケーションタイプ
-#            appName: 'asp-az400-book'                       # アプリケーション名
-#            package: '$(Build.ArtifactStagingDirectory)/**/*.zip' # デプロイパッケージ
