@@ -30,7 +30,7 @@ stages:
             organization: 'AZ400-Book'
             scannerMode: 'MSBuild'
             projectKey: 'freeplanets_Hyperion'
-#            projectName: 'AZ400-Book'
+            projectName: 'Hyperion'
 
         - task: VSBuild@1
           inputs:
