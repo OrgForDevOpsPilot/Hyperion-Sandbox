@@ -32,12 +32,11 @@ stages:
             projectKey: 'freeplanets_Hyperion'
             projectName: 'Hyperion'
 
-        - task: VSBuild@1
+        - task: DotNetCoreCLI@2
           inputs:
-            solution: '$(solution)'
-            msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-            platform: '$(buildPlatform)'
-            configuration: '$(buildConfiguration)'
+            command: 'build'
+            projects: '**/*.csproj'
+            arguments: '--configuration $(buildConfiguration)'
 
         - task: SonarCloudAnalyze@1
 
