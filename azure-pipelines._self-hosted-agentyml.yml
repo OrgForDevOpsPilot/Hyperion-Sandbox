@@ -13,41 +13,41 @@ pool:
   name: Default
 
 stages:
-  - stage: 'Analyze'
-    jobs:
-    - job: AnalyzeJob
-      displayName: 'Analyze Job'
-      steps:
-        - task: NuGetToolInstaller@1
+#  - stage: 'Analyze'
+#    jobs:
+#    - job: AnalyzeJob
+#      displayName: 'Analyze Job'
+#      steps:
+#        - task: NuGetToolInstaller@1
 
-        - task: NuGetCommand@2
-          inputs:
-            restoreSolution: '$(solution)'
+#        - task: NuGetCommand@2
+#          inputs:
+#            restoreSolution: '$(solution)'
 
-        - task: SonarCloudPrepare@1
-          inputs:
-            SonarCloud: 'SonarCloud-Connection'
-            organization: 'az400-book'
-            scannerMode: 'MSBuild'
-            projectKey: 'freeplanets_Hyperion'
-            projectName: 'Hyperion'
+#        - task: SonarCloudPrepare@1
+#          inputs:
+#            SonarCloud: 'SonarCloud-Connection'
+#            organization: 'az400-book'
+#            scannerMode: 'MSBuild'
+#            projectKey: 'freeplanets_Hyperion'
+#            projectName: 'Hyperion'
 
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'build'
-            projects: '**/*.csproj'
-            arguments: '--configuration $(buildConfiguration)'
+#        - task: DotNetCoreCLI@2
+#          inputs:
+#            command: 'build'
+#            projects: '**/*.csproj'
+#            arguments: '--configuration $(buildConfiguration)'
 
-        - task: SonarCloudAnalyze@1
+#        - task: SonarCloudAnalyze@1
 
-        - task: SonarCloudPublish@1
-          inputs:
-            pollingTimeoutSec: '300'
+#        - task: SonarCloudPublish@1
+#          inputs:
+#            pollingTimeoutSec: '300'
 
 # Build
   - stage: 'Build'
-    dependsOn: Analyze
-    condition:  succeeded()
+#    dependsOn: Analyze
+#    condition:  succeeded()
     displayName: 'Build the web application'
     jobs:
     - job: BuildJob
