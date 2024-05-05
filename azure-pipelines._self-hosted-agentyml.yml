@@ -1,0 +1,57 @@
+trigger:
+- none
+
+variables:
+  deploymentDefaultLocation: 'japaneast'
+  buildConfiguration: 'Release'
+  ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
+  dotnetSdkVersion: '6.x'
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+
+pool:
+  name: Default
+
+stages:
+
+  - stage: 'Build'
+    displayName: 'Build the web application'
+    jobs:
+    - job: BuildJob
+      displayName: 'Build Job'
+      steps:
+        - script: |
+            cd webapp/webapp
+            dotnet build --configuration $(buildConfiguration)
+          displayName: 'dotnet build $(buildConfiguration)'
+
+    - job: UnitTestJob
+      dependsOn: BuildJob
+      condition: succeeded()
+      displayName: 'UnitTest Job'
+      steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+          inputs:
+            version: '$(dotnetSdkVersion)'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Restore project dependencies'
+          inputs:
+            command: 'restore'
+            projects: 'webapp/webtest/*.csproj'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Build the project - $(buildConfiguration)'
+          inputs:
+            command: 'build'
+            arguments: '--no-restore --configuration $(buildConfiguration)'
+            projects: 'webapp/webtest/*.csproj'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Run unit tests - $(buildConfiguration)'
+          inputs:
+            command: 'test'
+            arguments: '--no-build --configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
+            publishTestResults: true
+            projects: 'webapp/webtest/webtest.csproj'
