@@ -55,3 +55,47 @@ stages:
             arguments: '--no-build --configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
             publishTestResults: true
             projects: 'webapp/webtest/webtest.csproj'
+
+  - stage: 'Publish'
+    dependsOn: Build
+    condition:  succeeded()
+    jobs:
+    - job: PublishJob
+      displayName: 'Publish Job'
+      steps:
+        - task: DotNetCoreCLI@2
+          displayName: 'Publish the project - $(buildConfiguration)'
+          inputs:
+            command: 'publish'
+            projects: '**/*.csproj'
+            publishWebProjects: false
+            arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+            zipAfterPublish: true
+
+        - publish: '$(Build.ArtifactStagingDirectory)'
+          artifact: drop
+
+  - stage: 'DeployToDev'
+    displayName: 'Deploy to the dev environment'
+    dependsOn: Publish
+    condition:  succeeded()
+    jobs:
+    - deployment: Deploy
+      pool:
+        vmImage: 'ubuntu-20.04'
+      environment: dev
+      variables:
+      - group: Release
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - download: current
+              artifact: drop
+            - task: AzureWebApp@1
+              displayName: 'Azure App Service Deploy: website'
+              inputs:
+                azureSubscription: $(ServiceConnectionName)
+                appType: 'webAppLinux'
+                appName: 'asp-az400-book'
+                package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/webapp.zip'
