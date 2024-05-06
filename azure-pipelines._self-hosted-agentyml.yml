@@ -37,6 +37,11 @@ stages:
             jdkSourceOption: LocalDirectory
             jdkFile: '$(build.SourcesDirectory)/jdk-21_linux-x64_bin.tar.gz'
             jdkDestinationDirectory: '$(agent.toolsDirectory)/jdk21'
+
+        - script: |
+            echo "##vso[task.setvariable variable=JAVA_HOME]$(Agent.ToolsDirectory)/jdk21/jdk-21.0.3"
+          displayName: 'Set JAVA_HOME'
+
 #        - task: UseDotNet@2
 #          displayName: 'Use .NET 6.x'
 #          inputs:
