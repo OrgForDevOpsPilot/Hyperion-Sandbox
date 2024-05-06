@@ -22,7 +22,7 @@ stages:
 #          displayName: 'Bash Script'
 
         - script: |
-            "C:\Program Files\Git\bin\bash.exe" -c "wget --no-check-certificate -c --header 'Cookie: oraclelicense=accept-securebackup-cookie' https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz"
+            "C:\Program Files\Git\bin\bash.exe" -c "curl -L --insecure -b 'oraclelicense=accept-securebackup-cookie' https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz -o $(Build.SourcesDirectory)/jdk-21_linux-x64_bin.tar.gz"
           displayName: 'Download JDK 21 with Bash'
 
         - task: JavaToolInstaller@0
