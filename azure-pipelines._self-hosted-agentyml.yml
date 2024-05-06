@@ -37,12 +37,12 @@ stages:
             jdkSourceOption: LocalDirectory
             jdkFile: '$(build.SourcesDirectory)/jdk-21_linux-x64_bin.tar.gz'
             jdkDestinationDirectory: '$(agent.toolsDirectory)/jdk21'
-        - task: UseDotNet@2
-          displayName: 'Use .NET 6.x'
-          inputs:
-            version: 6.x
-            includePreviewVersions: true
-        - task: NuGetToolInstaller@1
+#        - task: UseDotNet@2
+#          displayName: 'Use .NET 6.x'
+#          inputs:
+#            version: 6.x
+#            includePreviewVersions: true
+#        - task: NuGetToolInstaller@1
 
         - task: NuGetCommand@2
           inputs:
