@@ -132,7 +132,7 @@ stages:
     dependsOn: Publish
     condition:  succeeded()
     jobs:
-    - deployment: DeploymentJob
+    - deployment: DeployToDevJob
       pool:
         vmImage: 'ubuntu-20.04'
       environment: dev
@@ -157,7 +157,7 @@ stages:
     dependsOn: DeployToDev
     condition:  succeeded()
     jobs:
-    - deployment: DeploymentJob
+    - deployment: DeployToStagingJob
       pool:
         vmImage: 'ubuntu-20.04'
       environment: staging
