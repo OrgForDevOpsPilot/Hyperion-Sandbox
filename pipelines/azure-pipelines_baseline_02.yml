@@ -1,0 +1,150 @@
+trigger:
+- none
+
+variables:
+  deploymentDefaultLocation: 'japaneast'
+  buildConfiguration: 'Release'
+  ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
+  dotnetSdkVersion: '6.x'
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: 'Analyze'
+    jobs:
+    - job: AnalyzeJob
+      displayName: 'Analyze Job'
+      steps:
+        - task: NuGetToolInstaller@1
+
+        - task: NuGetCommand@2
+          inputs:
+            restoreSolution: '$(solution)'
+
+        - task: SonarCloudPrepare@1
+          inputs:
+            SonarCloud: 'SonarCloud-Connection'
+            organization: 'az400-book'
+            scannerMode: 'MSBuild'
+            projectKey: 'freeplanets_Hyperion'
+            projectName: 'Hyperion'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'build'
+            projects: '**/*.csproj'
+            arguments: '--configuration $(buildConfiguration)'
+
+        - task: SonarCloudAnalyze@1
+
+        - task: SonarCloudPublish@1
+          inputs:
+            pollingTimeoutSec: '300'
+
+# Build
+  - stage: 'Build'
+    dependsOn: Analyze
+    condition:  succeeded()
+    displayName: 'Build the web application'
+    jobs:
+    - job: BuildJob
+      displayName: 'Build Job'
+      steps:
+        - script: |
+            cd webapp/webapp
+            dotnet build --configuration $(buildConfiguration)
+          displayName: 'dotnet build $(buildConfiguration)'
+
+    - job: UnitTestJob
+      dependsOn: BuildJob
+      condition: succeeded()
+      displayName: 'UnitTest Job'
+      steps:
+        - task: UseDotNet@2
+          displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+          inputs:
+            version: '$(dotnetSdkVersion)'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Restore project dependencies'
+          inputs:
+            command: 'restore'
+            projects: 'webapp/webtest/*.csproj'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Build the project - $(buildConfiguration)'
+          inputs:
+            command: 'build'
+            arguments: '--no-restore --configuration $(buildConfiguration)'
+            projects: 'webapp/webtest/*.csproj'
+
+        - task: DotNetCoreCLI@2
+          displayName: 'Run unit tests - $(buildConfiguration)'
+          inputs:
+            command: 'test'
+            arguments: '--no-build --configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
+            publishTestResults: true
+            projects: 'webapp/webtest/webtest.csproj'
+
+        - task: PowerShell@2
+          displayName: 'Install ReportGenerator Code Coverage  Tool'
+          inputs:
+            targetType: 'inline'
+            script: |
+              dotnet tool install --global dotnet-reportgenerator-globaltool
+
+        - task: PowerShell@2
+          displayName: 'Execute ReportGenerator Code Coverage Command'
+          inputs:
+            targetType: 'inline'
+            script: 'reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"'
+
+        - task: PublishCodeCoverageResults@2
+          displayName: 'Public Code Coverage Results'
+          inputs:
+#            codeCoverageTool: 'Cobertura'
+            summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+
+  - stage: 'Publish'
+    dependsOn: Build
+    condition:  succeeded()
+    jobs:
+    - job: PublishJob
+      displayName: 'Publish Job'
+      steps:
+        - task: DotNetCoreCLI@2
+          displayName: 'Publish the project - $(buildConfiguration)'
+          inputs:
+            command: 'publish'
+            projects: '**/*.csproj'
+            publishWebProjects: false
+            arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+            zipAfterPublish: true
+
+        - publish: '$(Build.ArtifactStagingDirectory)'
+          artifact: drop
+
+  - stage: 'DeployToDev'
+    displayName: 'Deploy to the dev environment'
+    dependsOn: Publish
+    condition:  succeeded()
+    jobs:
+    - template: templates/deployment.yml
+      parameters:
+        jobName: DeployToDevJob
+        environment: dev
+        variableGroupName: DevRelease
+
+  - stage: 'DeployToStaging'
+    displayName: 'Deploy to the staging environment'
+    dependsOn: DeployToDev
+    condition:  succeeded()
+    jobs:
+    - template: templates/deployment.yml
+      parameters:
+        jobName: DeployToStagingJob
+        environment: staging
+        variableGroupName: StgRelease

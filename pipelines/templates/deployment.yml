@@ -1,0 +1,18 @@
+jobs:
+- deployment: ${{ parameters.jobName }}
+  environment: ${{ parameters.environment }}
+  variables:
+  - group: ${{ parameters.variableGroupName }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - download: current
+          artifact: drop
+        - task: AzureWebApp@1
+          displayName: 'Azure App Service Deploy: website'
+          inputs:
+            azureSubscription: $(ServiceConnectionName)
+            appType: 'webAppLinux'
+            appName: '$(WebAppNameDev)'
+            package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/webapp.zip'
