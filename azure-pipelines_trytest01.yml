@@ -154,7 +154,7 @@ stages:
 
   - stage: 'DeployToStaging'
     displayName: 'Deploy to the staging environment'
-    dependsOn: Publish
+    dependsOn: DeployToDev
     condition:  succeeded()
     jobs:
     - deployment: DeploymentJob
