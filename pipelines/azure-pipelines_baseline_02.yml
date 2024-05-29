@@ -19,31 +19,48 @@ stages:
     - job: AnalyzeJob
       displayName: 'Analyze Job'
       steps:
-        - task: NuGetToolInstaller@1
-
-        - task: NuGetCommand@2
+        # >>> Microsoft Defender for DevOps ※実行結果詳細をScanタブへ表示するには"SARIF SAST Scans Tab"拡張機能をインストールする必要があります
+        - task: UseDotNet@2
+          displayName: 'Use .NET SDK $(dotnetSdkVersion)'
           inputs:
-            restoreSolution: '$(solution)'
+            version: '$(dotnetSdkVersion)'
+            performMultiLevelLookup: true
+            includePreviewVersions: true
 
-        - task: SonarCloudPrepare@1
+        - task: MicrosoftSecurityDevOps@1
+          displayName: 'Microsoft Security DevOps'
           inputs:
-            SonarCloud: 'SonarCloud-Connection'
-            organization: 'az400-book'
-            scannerMode: 'MSBuild'
-            projectKey: 'freeplanets_Hyperion'
-            projectName: 'Hyperion'
+            categories: 'secrets, code'
+            break: true
+        # <<< Microsoft Defender for DevOps ※実行結果詳細をScanタブへ表示するには"SARIF SAST Scans Tab"拡張機能をインストールする必要があります
 
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'build'
-            projects: $(targetProjects)
-            arguments: '--configuration $(buildConfiguration)'
+        # # >>> SonarCloud
+        # - task: NuGetToolInstaller@1
 
-        - task: SonarCloudAnalyze@1
+        # - task: NuGetCommand@2
+        #   inputs:
+        #     restoreSolution: '$(solution)'
 
-        - task: SonarCloudPublish@1
-          inputs:
-            pollingTimeoutSec: '300'
+        # - task: SonarCloudPrepare@1
+        #   inputs:
+        #     SonarCloud: 'SonarCloud-Connection'
+        #     organization: 'az400-book'
+        #     scannerMode: 'MSBuild'
+        #     projectKey: 'freeplanets_Hyperion'
+        #     projectName: 'Hyperion'
+
+        # - task: DotNetCoreCLI@2
+        #   inputs:
+        #     command: 'build'
+        #     projects: $(targetProjects)
+        #     arguments: '--configuration $(buildConfiguration)'
+
+        # - task: SonarCloudAnalyze@1
+
+        # - task: SonarCloudPublish@1
+        #   inputs:
+        #     pollingTimeoutSec: '300'
+        # # <<< SonarCloud
 
   # Build
   - stage: 'Build'

@@ -8,7 +8,7 @@ namespace DemoSite.IntegrationTests
         [TestMethod]
         public void TestAddMethod()
         {
-            // Arrange
+            // Arrange 
             var functions = new Functions();
             int x = 5;
             int y = 3;

@@ -18,18 +18,48 @@ stages:
     - job: AnalyzeJob
       displayName: 'Analyze Job'
       steps:
+        # >>> Microsoft Defender for DevOps ※実行結果詳細をScanタブへ表示するには"SARIF SAST Scans Tab"拡張機能をインストールする必要があります
         - task: UseDotNet@2
           displayName: 'Use .NET SDK $(dotnetSdkVersion)'
           inputs:
             version: '$(dotnetSdkVersion)'
             performMultiLevelLookup: true
-            includePreviewVersions: true # Required for preview versions
+            includePreviewVersions: true
 
         - task: MicrosoftSecurityDevOps@1
           displayName: 'Microsoft Security DevOps'
           inputs:
             categories: 'secrets, code'
             break: true
+        # <<< Microsoft Defender for DevOps ※実行結果詳細をScanタブへ表示するには"SARIF SAST Scans Tab"拡張機能をインストールする必要があります
+
+        # # >>> SonarCloud
+        # - task: NuGetToolInstaller@1
+
+        # - task: NuGetCommand@2
+        #   inputs:
+        #     restoreSolution: '$(solution)'
+
+        # - task: SonarCloudPrepare@1
+        #   inputs:
+        #     SonarCloud: 'SonarCloud-Connection'
+        #     organization: 'az400-book'
+        #     scannerMode: 'MSBuild'
+        #     projectKey: 'freeplanets_Hyperion'
+        #     projectName: 'Hyperion'
+
+        # - task: DotNetCoreCLI@2
+        #   inputs:
+        #     command: 'build'
+        #     projects: $(targetProjects)
+        #     arguments: '--configuration $(buildConfiguration)'
+
+        # - task: SonarCloudAnalyze@1
+
+        # - task: SonarCloudPublish@1
+        #   inputs:
+        #     pollingTimeoutSec: '300'
+        # # <<< SonarCloud
 
   # Build
   - stage: 'Build'
