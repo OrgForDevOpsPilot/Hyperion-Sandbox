@@ -15,4 +15,4 @@ jobs:
             azureSubscription: $(ServiceConnectionName)
             appType: 'webAppLinux'
             appName: '$(WebAppName)'
-            package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/webapp.zip'
+            package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'

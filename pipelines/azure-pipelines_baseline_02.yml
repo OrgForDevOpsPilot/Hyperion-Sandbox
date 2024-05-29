@@ -4,112 +4,103 @@ trigger:
 variables:
   deploymentDefaultLocation: 'japaneast'
   buildConfiguration: 'Release'
-  ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
-  dotnetSdkVersion: '6.x'
+  dotnetSdkVersion: '8.x'
   solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
+  testProjects: '**/*.Tests/*.csproj'
+  targetProjects: '**/DemoSite/*.csproj'
+  ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
 
 pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: 'Analyze'
-    jobs:
-    - job: AnalyzeJob
-      displayName: 'Analyze Job'
-      steps:
-        - task: NuGetToolInstaller@1
+# # Analyze
+#   - stage: 'Analyze'
+#     jobs:
+#     - job: AnalyzeJob
+#       displayName: 'Analyze Job'
+#       steps:
+#         - task: NuGetToolInstaller@1
 
-        - task: NuGetCommand@2
-          inputs:
-            restoreSolution: '$(solution)'
+#         - task: NuGetCommand@2
+#           inputs:
+#             restoreSolution: '$(solution)'
 
-        - task: SonarCloudPrepare@1
-          inputs:
-            SonarCloud: 'SonarCloud-Connection'
-            organization: 'az400-book'
-            scannerMode: 'MSBuild'
-            projectKey: 'freeplanets_Hyperion'
-            projectName: 'Hyperion'
+#         - task: SonarCloudPrepare@1
+#           inputs:
+#             SonarCloud: 'SonarCloud-Connection'
+#             organization: 'az400-book'
+#             scannerMode: 'MSBuild'
+#             projectKey: 'freeplanets_Hyperion'
+#             projectName: 'Hyperion'
 
-        - task: DotNetCoreCLI@2
-          inputs:
-            command: 'build'
-            projects: '**/*.csproj'
-            arguments: '--configuration $(buildConfiguration)'
+#         - task: DotNetCoreCLI@2
+#           inputs:
+#             command: 'build'
+#             projects: '**/*.csproj'
+#             arguments: '--configuration $(buildConfiguration)'
 
-        - task: SonarCloudAnalyze@1
+#         - task: SonarCloudAnalyze@1
 
-        - task: SonarCloudPublish@1
-          inputs:
-            pollingTimeoutSec: '300'
+#         - task: SonarCloudPublish@1
+#           inputs:
+#             pollingTimeoutSec: '300'
 
-# Build
+  # Build
   - stage: 'Build'
-    dependsOn: Analyze
-    condition:  succeeded()
+    # dependsOn: Analyze
+    # condition:  succeeded()
     displayName: 'Build the web application'
     jobs:
-    - job: BuildJob
-      displayName: 'Build Job'
-      steps:
-        - script: |
-            cd webapp/webapp
-            dotnet build --configuration $(buildConfiguration)
-          displayName: 'dotnet build $(buildConfiguration)'
+      - job: BuildJob
+        displayName: 'Build Job'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+            inputs:
+              version: '$(dotnetSdkVersion)'
+              performMultiLevelLookup: true
+              includePreviewVersions: true # Required for preview versions
 
-    - job: UnitTestJob
-      dependsOn: BuildJob
-      condition: succeeded()
-      displayName: 'UnitTest Job'
-      steps:
-        - task: UseDotNet@2
-          displayName: 'Use .NET SDK $(dotnetSdkVersion)'
-          inputs:
-            version: '$(dotnetSdkVersion)'
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore project dependencies'
+            inputs:
+              command: 'restore'
+              projects: $(testProjects)
 
-        - task: DotNetCoreCLI@2
-          displayName: 'Restore project dependencies'
-          inputs:
-            command: 'restore'
-            projects: 'webapp/webtest/*.csproj'
+          - task: DotNetCoreCLI@2
+            displayName: 'Build the project - $(buildConfiguration)'
+            inputs:
+              command: 'build'
+              projects: $(testProjects)
+              arguments: '--no-restore --configuration $(buildConfiguration)'
 
-        - task: DotNetCoreCLI@2
-          displayName: 'Build the project - $(buildConfiguration)'
-          inputs:
-            command: 'build'
-            arguments: '--no-restore --configuration $(buildConfiguration)'
-            projects: 'webapp/webtest/*.csproj'
-
-        - task: DotNetCoreCLI@2
-          displayName: 'Run unit tests - $(buildConfiguration)'
-          inputs:
-            command: 'test'
-            arguments: '--no-build --configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
-            publishTestResults: true
-            projects: 'webapp/webtest/webtest.csproj'
-
-        - task: PowerShell@2
-          displayName: 'Install ReportGenerator Code Coverage  Tool'
-          inputs:
-            targetType: 'inline'
-            script: |
-              dotnet tool install --global dotnet-reportgenerator-globaltool
-
-        - task: PowerShell@2
-          displayName: 'Execute ReportGenerator Code Coverage Command'
-          inputs:
-            targetType: 'inline'
-            script: 'reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"'
-
-        - task: PublishCodeCoverageResults@2
-          displayName: 'Public Code Coverage Results'
-          inputs:
-#            codeCoverageTool: 'Cobertura'
-            summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
-
-  - stage: 'Publish'
+  # Unit Test
+  - stage: 'Test'
+    displayName: 'Unit test the application'
     dependsOn: Build
+    condition:  succeeded()
+    jobs:
+      - job: UnitTestJob
+        displayName: 'UnitTest Job'
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Execute unit test'
+            inputs:
+              command: test
+              projects: $(testProjects)
+              arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+              publishTestResults: true
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish code coverage report'
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+
+  # Publish
+  - stage: 'Publish'
+    dependsOn: Test
     condition:  succeeded()
     jobs:
     - job: PublishJob
@@ -119,7 +110,7 @@ stages:
           displayName: 'Publish the project - $(buildConfiguration)'
           inputs:
             command: 'publish'
-            projects: '**/*.csproj'
+            projects: $(targetProjects)
             publishWebProjects: false
             arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
             zipAfterPublish: true
@@ -127,6 +118,7 @@ stages:
         - publish: '$(Build.ArtifactStagingDirectory)'
           artifact: drop
 
+  # DeployToDev
   - stage: 'DeployToDev'
     displayName: 'Deploy to the dev environment'
     dependsOn: Publish
@@ -138,6 +130,7 @@ stages:
         environment: dev
         variableGroupName: DevRelease
 
+  # DeployToStaging
   - stage: 'DeployToStaging'
     displayName: 'Deploy to the staging environment'
     dependsOn: DeployToDev
