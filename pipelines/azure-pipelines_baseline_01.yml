@@ -4,15 +4,16 @@ trigger:
 variables:
   deploymentDefaultLocation: 'japaneast'
   buildConfiguration: 'Release'
-  ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
-  dotnetSdkVersion: '6.x'
+  dotnetSdkVersion: '8.x'
   solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
+  testProjects: '**/*.Test/*.csproj'
+  ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
 
 pool:
   vmImage: ubuntu-latest
 
 stages:
+# Analyze
   - stage: 'Analyze'
     jobs:
     - job: AnalyzeJob
@@ -53,63 +54,52 @@ stages:
     - job: BuildJob
       displayName: 'Build Job'
       steps:
-        - script: |
-            cd webapp/webapp
-            dotnet build --configuration $(buildConfiguration)
-          displayName: 'dotnet build $(buildConfiguration)'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Use .NET SDK $(dotnetSdkVersion)'
+            inputs:
+              version: '$(dotnetSdkVersion)'
+              performMultiLevelLookup: true
+              includePreviewVersions: true # Required for preview versions
 
-    - job: UnitTestJob
-      dependsOn: BuildJob
-      condition: succeeded()
-      displayName: 'UnitTest Job'
-      steps:
-        - task: UseDotNet@2
-          displayName: 'Use .NET SDK $(dotnetSdkVersion)'
-          inputs:
-            version: '$(dotnetSdkVersion)'
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore project dependencies'
+            inputs:
+              command: 'restore'
+              projects: $(testProjects)
 
-        - task: DotNetCoreCLI@2
-          displayName: 'Restore project dependencies'
-          inputs:
-            command: 'restore'
-            projects: 'webapp/webtest/*.csproj'
+          - task: DotNetCoreCLI@2
+            displayName: 'Build the project - $(buildConfiguration)'
+            inputs:
+              command: 'build'
+              projects: $(testProjects)
+              arguments: '--no-restore --configuration $(buildConfiguration)'
 
-        - task: DotNetCoreCLI@2
-          displayName: 'Build the project - $(buildConfiguration)'
-          inputs:
-            command: 'build'
-            arguments: '--no-restore --configuration $(buildConfiguration)'
-            projects: 'webapp/webtest/*.csproj'
+# Unit Test
+  - stage: 'Test'
+    displayName: 'Unit test the application'
+    dependsOn: Build
+    condition:  succeeded()
+    jobs:
+      - job: UnitTestJob
+        displayName: 'UnitTest Job'
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Execute unit test'
+            inputs:
+              command: test
+              projects: $(testProjects)
+              arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+              publishTestResults: true
 
-        - task: DotNetCoreCLI@2
-          displayName: 'Run unit tests - $(buildConfiguration)'
-          inputs:
-            command: 'test'
-            arguments: '--no-build --configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
-            publishTestResults: true
-            projects: 'webapp/webtest/webtest.csproj'
-
-        - task: PowerShell@2
-          displayName: 'Install ReportGenerator Code Coverage  Tool'
-          inputs:
-            targetType: 'inline'
-            script: |
-              dotnet tool install --global dotnet-reportgenerator-globaltool
-
-        - task: PowerShell@2
-          displayName: 'Execute ReportGenerator Code Coverage Command'
-          inputs:
-            targetType: 'inline'
-            script: 'reportgenerator -reports:$(Agent.TempDirectory)/**/coverage.cobertura.xml -targetdir:$(Build.SourcesDirectory)/coverlet/reports -reporttypes:"Cobertura"'
-
-        - task: PublishCodeCoverageResults@2
-          displayName: 'Public Code Coverage Results'
-          inputs:
-#            codeCoverageTool: 'Cobertura'
-            summaryFileLocation: '$(Build.SourcesDirectory)/coverlet/reports/Cobertura.xml'
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish code coverage report'
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
   - stage: 'Publish'
-    dependsOn: Build
+    dependsOn: Test
     condition:  succeeded()
     jobs:
     - job: PublishJob
@@ -119,7 +109,7 @@ stages:
           displayName: 'Publish the project - $(buildConfiguration)'
           inputs:
             command: 'publish'
-            projects: '**/*.csproj'
+            projects: $(testProjects)
             publishWebProjects: false
             arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
             zipAfterPublish: true
