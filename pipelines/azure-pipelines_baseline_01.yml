@@ -142,7 +142,7 @@ stages:
                 azureSubscription: $(ServiceConnectionName)
                 appType: 'webAppLinux'
                 appName: '$(WebAppNameDev)'
-                package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/webapp.zip'
+                package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
   # DeployToStaging
   - stage: 'DeployToStaging'
@@ -168,4 +168,4 @@ stages:
                 azureSubscription: $(ServiceConnectionName)
                 appType: 'webAppLinux'
                 appName: '$(WebAppNameStg)'
-                package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/webapp.zip'
+                package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
