@@ -7,6 +7,7 @@ variables:
   dotnetSdkVersion: '8.x'
   solution: '**/*.sln'
   testProjects: '**/*.Tests/*.csproj'
+  targetProjects: '**/DemoSite/*.csproj'
   ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
 
 pool:
@@ -45,7 +46,7 @@ stages:
 #           inputs:
 #             pollingTimeoutSec: '300'
 
-# Build
+  # Build
   - stage: 'Build'
     # dependsOn: Analyze
     # condition:  succeeded()
@@ -74,7 +75,7 @@ stages:
               projects: $(testProjects)
               arguments: '--no-restore --configuration $(buildConfiguration)'
 
-# Unit Test
+  # Unit Test
   - stage: 'Test'
     displayName: 'Unit test the application'
     dependsOn: Build
@@ -97,6 +98,7 @@ stages:
               codeCoverageTool: 'Cobertura'
               summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
+  # Publish
   - stage: 'Publish'
     dependsOn: Test
     condition:  succeeded()
@@ -116,6 +118,7 @@ stages:
         - publish: '$(Build.ArtifactStagingDirectory)'
           artifact: drop
 
+  # DeployToDev
   - stage: 'DeployToDev'
     displayName: 'Deploy to the dev environment'
     dependsOn: Publish
@@ -141,6 +144,7 @@ stages:
                 appName: '$(WebAppNameDev)'
                 package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/webapp.zip'
 
+  # DeployToStaging
   - stage: 'DeployToStaging'
     displayName: 'Deploy to the staging environment'
     dependsOn: DeployToDev
