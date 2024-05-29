@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DemoSite.Modules;
 
-namespace DemoSite.Tests
+namespace DemoSite.UnitTests
 {
     [TestClass]
     public class UnitTest1
