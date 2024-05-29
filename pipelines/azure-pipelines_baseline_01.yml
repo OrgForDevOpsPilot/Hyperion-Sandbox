@@ -2,7 +2,6 @@ trigger:
 - none
 
 variables:
-  deploymentDefaultLocation: 'japaneast'
   buildConfiguration: 'Release'
   dotnetSdkVersion: '8.x'
   solution: '**/*.sln'

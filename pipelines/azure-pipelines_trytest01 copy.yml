@@ -2,7 +2,6 @@ trigger:
 - none
 
 variables:
-  deploymentDefaultLocation: 'japaneast'
   buildConfiguration: 'Release'
   ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
   dotnetSdkVersion: '6.x'
