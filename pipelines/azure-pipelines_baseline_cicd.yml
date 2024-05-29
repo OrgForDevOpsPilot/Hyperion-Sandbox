@@ -53,8 +53,8 @@ stages:
 
   # Build
   - stage: 'Build'
-    # dependsOn: Analyze
-    # condition:  succeeded()
+    dependsOn: Analyze
+    condition:  succeeded()
     displayName: 'Build the web application'
     jobs:
       - job: BuildJob
@@ -104,7 +104,7 @@ stages:
               summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
   # Integration Test
-  - stage: 'Test'
+  - stage: 'IntegrationTest'
     displayName: 'Integration test the application'
     dependsOn: UnitTest
     condition:  succeeded()
@@ -128,7 +128,7 @@ stages:
 
   # Publish
   - stage: 'Publish'
-    dependsOn: Test
+    dependsOn: IntegrationTest
     condition:  succeeded()
     jobs:
     - job: PublishJob
