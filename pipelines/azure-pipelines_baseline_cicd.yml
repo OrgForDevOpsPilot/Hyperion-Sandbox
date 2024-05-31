@@ -13,6 +13,8 @@ variables:
   unitTestProjects: '**/*.UnitTests/*.csproj'
   integrationTestProjects: '**/*.IntegrationTests/*.csproj'
   targetProjects: '**/DemoSite/*.csproj'
+  appServiceNameDev: 'asp-az400-book-dev'
+  appServiceNameStg: 'asp-az400-book-stg'
   ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
 
 pool:
@@ -173,7 +175,7 @@ stages:
       parameters:
         jobName: 'DeployToDevJob'
         variableGroupName: 'DevRelease'
-        appName: 'asp-az400-book-dev'
+        appName: '$(appServiceNameDev)'
         environment: 'dev'
         message: '$(devEnvMessage)'
 
@@ -187,6 +189,6 @@ stages:
       parameters:
         jobName: DeployToStagingJob
         variableGroupName: 'StgRelease'
-        appName: 'asp-az400-book-stg'
+        appName: '$(appServiceNameStg)'
         environment: 'staging'
         message: '$(stagingEnvMessage)'
