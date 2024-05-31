@@ -16,3 +16,11 @@ jobs:
             appType: 'webAppLinux'
             appName: '$(WebAppName)'
             package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+            appSettings: |
+            [
+                {
+                "name": "MESSAGE",
+                "value": "${{ parameters.message }}",
+                "slotSetting": false
+                }
+            ]
