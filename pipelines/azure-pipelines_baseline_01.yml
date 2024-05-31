@@ -181,11 +181,11 @@ stages:
               inputs:
                 azureSubscription: $(ServiceConnectionName)
                 appName: 'asp-az400-book-dev'
-                appSettings: >
+                appSettings: |
                   [
                     {
                       "name": "MESSAGE",
-                      "value": "{{ $(devEnvMessage) }}",
+                      "value": "$(devEnvMessage)",
                       "slotSetting": false
                     }
                   ]
@@ -222,11 +222,11 @@ stages:
               inputs:
                 azureSubscription: $(ServiceConnectionName)
                 appName: 'asp-az400-book-stg'
-                appSettings: >
+                appSettings: |
                   [
                     {
                       "name": "MESSAGE",
-                      "value": "{{ $(stagingEnvMessage) }}",
+                      "value": "$(stagingEnvMessage)",
                       "slotSetting": false
                     }
                   ]
