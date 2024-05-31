@@ -9,13 +9,11 @@ jobs:
         steps:
         - download: current
           artifact: drop
-        - task: AzureWebApp@1
-          displayName: 'Azure App Service Deploy: website'
+        - task: AzureAppServiceSettings@1
+          displayName: 'Azure App Service Settings'
           inputs:
             azureSubscription: $(ServiceConnectionName)
-            appType: 'webAppLinux'
             appName: '$(WebAppName)'
-            package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
             appSettings: |
             [
                 {
@@ -24,3 +22,11 @@ jobs:
                 "slotSetting": false
                 }
             ]
+
+        - task: AzureWebApp@1
+          displayName: 'Azure App Service Deploy: website'
+          inputs:
+            azureSubscription: $(ServiceConnectionName)
+            appType: 'webAppLinux'
+            appName: '$(WebAppName)'
+            package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
