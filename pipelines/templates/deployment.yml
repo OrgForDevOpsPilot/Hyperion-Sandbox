@@ -14,14 +14,14 @@ jobs:
           inputs:
             azureSubscription: $(ServiceConnectionName)
             appName: '$(WebAppName)'
-            appSettings: |
-            [
+            appSettings: >
+              [
                 {
-                "name": "MESSAGE",
-                "value": "${{ parameters.message }}",
-                "slotSetting": false
+                  "name": "MESSAGE",
+                  "value": "${{ parameters.message }}",
+                  "slotSetting": false
                 }
-            ]
+              ]
 
         - task: AzureWebApp@1
           displayName: 'Azure App Service Deploy: website'
