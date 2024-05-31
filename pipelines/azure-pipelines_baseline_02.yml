@@ -157,6 +157,26 @@ stages:
         - publish: '$(Build.ArtifactStagingDirectory)'
           artifact: drop
 
+  # Publish
+  - stage: 'Publish'
+    dependsOn: IntegrationTest
+    condition:  succeeded()
+    jobs:
+    - job: PublishJob
+      displayName: 'Publish Job'
+      steps:
+        - task: DotNetCoreCLI@2
+          displayName: 'Publish the project - $(buildConfiguration)'
+          inputs:
+            command: 'publish'
+            projects: $(targetProjects)
+            publishWebProjects: false
+            arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+            zipAfterPublish: true
+
+        - publish: '$(Build.ArtifactStagingDirectory)'
+          artifact: drop
+
   # DeployToDev
   - stage: 'DeployToDev'
     displayName: 'Deploy to the dev environment'
@@ -165,9 +185,11 @@ stages:
     jobs:
     - template: templates/deployment.yml
       parameters:
-        jobName: DeployToDevJob
-        environment: dev
-        variableGroupName: DevRelease
+        jobName: 'DeployToDevJob'
+        variableGroupName: 'DevRelease'
+        appName: 'asp-az400-book-dev'
+        environment: 'dev'
+        message: '$(devEnvMessage)'
 
   # DeployToStaging
   - stage: 'DeployToStaging'
@@ -178,5 +200,7 @@ stages:
     - template: templates/deployment.yml
       parameters:
         jobName: DeployToStagingJob
-        environment: staging
-        variableGroupName: StgRelease
+        variableGroupName: 'StgRelease'
+        appName: 'asp-az400-book-stg'
+        environment: 'staging'
+        message: '$(stagingEnvMessage)'
