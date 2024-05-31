@@ -185,7 +185,7 @@ stages:
                   [
                     {
                       "name": "MESSAGE",
-                      "value": """$(devEnvMessage)""",
+                      "value": '$(devEnvMessage)',
                       "slotSetting": false
                     }
                   ]
@@ -226,7 +226,7 @@ stages:
                   [
                     {
                       "name": "MESSAGE",
-                      "value": """$(stagingEnvMessage)""",
+                      "value": '$(stagingEnvMessage)',
                       "slotSetting": false
                     }
                   ]
