@@ -9,19 +9,19 @@ jobs:
         steps:
         - download: current
           artifact: drop
-        - task: AzureAppServiceSettings@1
-          displayName: 'Azure App Service Settings'
-          inputs:
-            azureSubscription: $(ServiceConnectionName)
-            appName: '$(WebAppName)'
-            appSettings: >
-              [
-                {
-                  "name": "MESSAGE",
-                  "value": "${{ parameters.message }}",
-                  "slotSetting": false
-                }
-              ]
+        # - task: AzureAppServiceSettings@1
+        #   displayName: 'Azure App Service Settings'
+        #   inputs:
+        #     azureSubscription: $(ServiceConnectionName)
+        #     appName: '$(WebAppName)'
+        #     appSettings: >
+        #       [
+        #         {
+        #           "name": "MESSAGE",
+        #           "value": "${{ parameters.message }}",
+        #           "slotSetting": false
+        #         }
+        #       ]
 
         - task: AzureWebApp@1
           displayName: 'Azure App Service Deploy: website'
@@ -30,3 +30,11 @@ jobs:
             appType: 'webAppLinux'
             appName: '$(WebAppName)'
             package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+            appSettings: >
+              [
+                {
+                  "name": "MESSAGE",
+                  "value": "${{ parameters.message }}",
+                  "slotSetting": false
+                }
+              ]
