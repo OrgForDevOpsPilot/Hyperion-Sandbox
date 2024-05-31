@@ -171,10 +171,11 @@ stages:
     jobs:
     - template: templates/deployment.yml
       parameters:
-        jobName: DeployToDevJob
-        environment: dev
-        variableGroupName: DevRelease
-        message: "$(devEnvMessage)"
+        jobName: 'DeployToDevJob'
+        variableGroupName: 'DevRelease'
+        appName: 'asp-az400-book-dev'
+        environment: 'dev'
+        message: '$(devEnvMessage)'
 
   # DeployToStaging
   - stage: 'DeployToStaging'
@@ -185,6 +186,7 @@ stages:
     - template: templates/deployment.yml
       parameters:
         jobName: DeployToStagingJob
-        environment: staging
-        variableGroupName: StgRelease
-        message: "$(stagingEnvMessage)"
+        variableGroupName: 'StgRelease'
+        appName: 'asp-az400-book-stg'
+        environment: 'staging'
+        message: '$(stagingEnvMessage)'

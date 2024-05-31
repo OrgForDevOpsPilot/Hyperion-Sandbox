@@ -28,7 +28,7 @@ jobs:
           inputs:
             azureSubscription: $(ServiceConnectionName)
             appType: 'webAppLinux'
-            appName: '$(WebAppName)'
+            appName: ${{ parameters.appName }}
             package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
             appSettings: >
               [
