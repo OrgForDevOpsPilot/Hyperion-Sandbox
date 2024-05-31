@@ -159,26 +159,6 @@ stages:
         - publish: '$(Build.ArtifactStagingDirectory)'
           artifact: drop
 
-  # Publish
-  - stage: 'Publish'
-    dependsOn: IntegrationTest
-    condition:  succeeded()
-    jobs:
-    - job: PublishJob
-      displayName: 'Publish Job'
-      steps:
-        - task: DotNetCoreCLI@2
-          displayName: 'Publish the project - $(buildConfiguration)'
-          inputs:
-            command: 'publish'
-            projects: $(targetProjects)
-            publishWebProjects: false
-            arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
-            zipAfterPublish: true
-
-        - publish: '$(Build.ArtifactStagingDirectory)'
-          artifact: drop
-
   # DeployToDev
   - stage: 'DeployToDev'
     displayName: 'Deploy to the dev environment'
