@@ -1,3 +1,8 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
 trigger:
 - none
 
@@ -14,7 +19,6 @@ steps:
   inputs:
     packageType: 'sdk'
     version: '8.x'
-    
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
@@ -28,18 +32,20 @@ steps:
     projects: 'src/DemoCoreServices/DemoCoreServices/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Pack the library project - $(buildConfiguration)'
+- task: NuGetCommand@2
   inputs:
-    command: 'pack'
-    projects: 'src/DemoCoreServices/DemoCoreServices/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    command: pack
+    packagesToPack: '**/*.csproj'
+    versioningScheme: byEnvVar 
+    versionEnvVar: Build.BuildId
+    packDestination: '$(Build.ArtifactStagingDirectory)'
 
 - task: NuGetAuthenticate@0
   displayName: 'NuGet Authenticate'
-
-- task: DotNetCoreCLI@2
+- task: NuGetCommand@2
   displayName: 'NuGet push'
   inputs:
-    command: 'nuget push'
-    arguments: '$(Build.ArtifactStagingDirectory)\*.nupkg --source "Hyperion/CoreService" --skip-duplicate'
+    command: push
+    packagesToPush: '$(Build.ArtifactStagingDirectory)\*.nupkg'
+    publishVstsFeed: 'Hyperion/CoreService'
+    allowPackageConflicts: true
