@@ -16,6 +16,7 @@ variables:
   appServiceNameDev: 'asp-az400-book-dev'
   appServiceNameStg: 'asp-az400-book-stg'
   ServiceConnectionName: 'avanadeosadatest_Tenant_Connection'
+  libraryProjects: '**/**/*.DemoCoreServices/*.csproj'
 
 pool:
   vmImage: ubuntu-latest
@@ -98,6 +99,31 @@ stages:
               command: 'build'
               projects: $(unitTestProjects)
               arguments: '--no-restore --configuration $(buildConfiguration)'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build the project - $(buildConfiguration)'
+            inputs:
+              command: 'build'
+              projects: $(libraryProjects)
+              arguments: '--no-restore --configuration $(buildConfiguration)'
+
+          - task: NuGetCommand@2
+            inputs:
+              command: pack
+              packagesToPack: '$(libraryProjects)'
+              versioningScheme: byEnvVar 
+              versionEnvVar: Build.BuildId
+              packDestination: '$(Build.ArtifactStagingDirectory)'
+
+          - task: NuGetAuthenticate@0
+            displayName: 'NuGet Authenticate'
+          - task: NuGetCommand@2
+            displayName: 'NuGet push'
+            inputs:
+              command: push
+              packagesToPush: '$(Build.ArtifactStagingDirectory)\*.nupkg'
+              publishVstsFeed: 'Hyperion/DemoCoreService'
+              allowPackageConflicts: true
 
   # Unit Test
   - stage: 'UnitTest'
