@@ -9,6 +9,7 @@
     <Authors>DemoCoreServices</Authors>
     <Company>DemoCoreServices</Company>
     <Version>1.0.1</Version>
+    <Description>This is a sample description of the package.</Description>
   </PropertyGroup>
 
 </Project>
