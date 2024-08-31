@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using DemoCoreServices;     //・・・①
+//using DemoCoreServices;     //・・・①
 
 namespace DemoSite.Pages;
 
@@ -21,7 +21,7 @@ public class IndexModel : PageModel
     public void OnGet()
     {
         this.SystemMessageText = Environment.GetEnvironmentVariable("MESSAGE");
-        CoreFunctionality coreFunctionality = new CoreFunctionality();
-        this.ArtifactsLibraryText = coreFunctionality.Display();    //・・・③
+        //CoreFunctionality coreFunctionality = new CoreFunctionality();
+        //this.ArtifactsLibraryText = coreFunctionality.Display();    //・・・③
     }
 }

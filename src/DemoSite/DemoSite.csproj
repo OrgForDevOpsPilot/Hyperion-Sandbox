@@ -6,8 +6,4 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DemoCoreServices" Version="1.0.1" />
-  </ItemGroup>
-
 </Project>
