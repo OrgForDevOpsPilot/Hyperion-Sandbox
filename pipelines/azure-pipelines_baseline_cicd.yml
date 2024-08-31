@@ -88,26 +88,27 @@ stages:
               includePreviewVersions: true # Required for preview versions
 
           - task: DotNetCoreCLI@2
-            displayName: 'Restore project dependencies'
+            displayName: 'Restore unit test project dependencies'
             inputs:
               command: 'restore'
               projects: $(unitTestProjects)
 
           - task: DotNetCoreCLI@2
-            displayName: 'Build the project - $(buildConfiguration)'
+            displayName: 'Build the unit test project - $(buildConfiguration)'
             inputs:
               command: 'build'
               projects: $(unitTestProjects)
               arguments: '--no-restore --configuration $(buildConfiguration)'
 
           - task: DotNetCoreCLI@2
-            displayName: 'Build the project - $(buildConfiguration)'
+            displayName: 'Build the library project - $(buildConfiguration)'
             inputs:
               command: 'build'
               projects: $(libraryProjects)
               arguments: '--no-restore --configuration $(buildConfiguration)'
 
           - task: NuGetCommand@2
+            displayName: 'Pack the library project - $(buildConfiguration)'
             inputs:
               command: pack
               packagesToPack: '$(libraryProjects)'
@@ -118,7 +119,7 @@ stages:
           - task: NuGetAuthenticate@0
             displayName: 'NuGet Authenticate'
           - task: NuGetCommand@2
-            displayName: 'NuGet push'
+            displayName: 'Push the library project - $(buildConfiguration)'
             inputs:
               command: push
               packagesToPush: '$(Build.ArtifactStagingDirectory)\*.nupkg'
