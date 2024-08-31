@@ -88,6 +88,19 @@ stages:
               includePreviewVersions: true # Required for preview versions
 
           - task: DotNetCoreCLI@2
+            displayName: 'Restore unit main project dependencies'
+            inputs:
+              command: 'restore'
+              projects: $(targetProjects)
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build the unit main project - $(buildConfiguration)'
+            inputs:
+              command: 'build'
+              projects: $(targetProjects)
+              arguments: '--configuration $(buildConfiguration)'
+
+          - task: DotNetCoreCLI@2
             displayName: 'Restore unit test project dependencies'
             inputs:
               command: 'restore'
@@ -118,6 +131,8 @@ stages:
 
           - task: NuGetAuthenticate@0
             displayName: 'NuGet Authenticate'
+            inputs:
+              nuGetServiceConnections: '$(ServiceConnectionName)'
           - task: NuGetCommand@2
             displayName: 'Push the library project - $(buildConfiguration)'
             inputs:
