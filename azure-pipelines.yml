@@ -15,14 +15,18 @@ steps:
   inputs:
     packageType: 'sdk'
     version: '8.x'
+- task: NuGetToolInstaller@1
 
-- script: |
-    nuget restore $(solution)
-  displayName: 'NuGetパッケージの復元'
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
 
-- script: |
-    dotnet build src/DemoCoreServices/DemoCoreServices/DemoCoreServices.csproj --configuration $(buildConfiguration)
-  displayName: 'プロジェクトのビルド'
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: 'src/DemoCoreServices/DemoCoreServices/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
 
 - script: |
     dotnet pack src/DemoCoreServices/DemoCoreServices/DemoCoreServices.csproj --configuration $(buildConfiguration) --output $(packageOutputDir) /p:Version=$(Build.BuildId)
