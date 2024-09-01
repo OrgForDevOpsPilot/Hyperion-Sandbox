@@ -32,8 +32,15 @@ steps:
     dotnet pack src/DemoCoreServices/DemoCoreServices/DemoCoreServices.csproj --configuration $(buildConfiguration) --output $(packageOutputDir) /p:Version=$(Build.BuildId)
   displayName: 'プロジェクトをNuGetパッケージにパック'
 
+# - script: |
+#     nuget sources Update -Name "DemoCoreService" -Source "https://pkgs.dev.azure.com/freeplanets/Hyperion/_packaging/DemoCoreService/nuget/v3/index.json" -UserName "$(System.AccessToken)" -Password "$(System.AccessToken)"
+#     nuget push "$(packageOutputDir)\*.nupkg" -Source "DemoCoreService" -ApiKey "AzureDevOps"
+#   displayName: 'パッケージをAzure Artifactsにプッシュ'
+#   env:
+#     NUGET_AUTH_TOKEN: $(System.AccessToken)
+
 - script: |
-    nuget sources Update -Name "DemoCoreService" -Source "https://pkgs.dev.azure.com/freeplanets/Hyperion/_packaging/DemoCoreService/nuget/v3/index.json" -UserName "$(System.AccessToken)" -Password "$(System.AccessToken)"
+#    nuget sources add -Name "DemoCoreService" -Source "https://pkgs.dev.azure.com/freeplanets/Hyperion/_packaging/DemoCoreService/nuget/v3/index.json" -UserName "$(System.AccessToken)" -Password "$(System.AccessToken)"
     nuget push "$(packageOutputDir)\*.nupkg" -Source "DemoCoreService" -ApiKey "AzureDevOps"
   displayName: 'パッケージをAzure Artifactsにプッシュ'
   env:
