@@ -1,8 +1,3 @@
-# ASP.NET Core (.NET Framework)
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - none
 
@@ -13,47 +8,29 @@ variables:
   solution: 'src/DemoCoreServices/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  packageOutputDir: '$(Build.ArtifactStagingDirectory)'
 
 steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
     version: '8.x'
-- task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
+- script: |
+    nuget restore $(solution)
+  displayName: 'NuGetパッケージの復元'
 
-- task: DotNetCoreCLI@2
-  displayName: Build
-  inputs:
-    command: build
-    projects: 'src/DemoCoreServices/DemoCoreServices/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+- script: |
+    dotnet build src/DemoCoreServices/DemoCoreServices/DemoCoreServices.csproj --configuration $(buildConfiguration)
+  displayName: 'プロジェクトのビルド'
 
-# - task: NuGetCommand@2
-#   inputs:
-#     command: pack
-#     packagesToPack: '**/*.csproj'
-#     versioningScheme: byEnvVar 
-#     versionEnvVar: Build.BuildId
-#     packDestination: '$(Build.ArtifactStagingDirectory)'
+- script: |
+    dotnet pack src/DemoCoreServices/DemoCoreServices/DemoCoreServices.csproj --configuration $(buildConfiguration) --output $(packageOutputDir) /p:Version=$(Build.BuildId)
+  displayName: 'プロジェクトをNuGetパッケージにパック'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Pack the library project - $(buildConfiguration)'
-  inputs:
-    command: 'pack'
-    projects: 'src/DemoCoreServices/DemoCoreServices/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    versioningScheme: byEnvVar
-
-- task: NuGetAuthenticate@0
-  displayName: 'NuGet Authenticate'
-- task: NuGetCommand@2
-  displayName: 'NuGet push'
-  inputs:
-    command: push
-    packagesToPush: '$(Build.ArtifactStagingDirectory)\*.nupkg'
-    publishVstsFeed: 'Hyperion/CoreService'
-    allowPackageConflicts: true
+- script: |
+    nuget sources Update -Name "DemoCoreService" -Source "https://pkgs.dev.azure.com/freeplanets/Hyperion/_packaging/DemoCoreService/nuget/v3/index.json" -UserName "$(System.AccessToken)" -Password "$(System.AccessToken)"
+    nuget push "$(packageOutputDir)\*.nupkg" -Source "DemoCoreService" -ApiKey "AzureDevOps"
+  displayName: 'パッケージをAzure Artifactsにプッシュ'
+  env:
+    NUGET_AUTH_TOKEN: $(System.AccessToken)
