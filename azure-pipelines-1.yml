@@ -1,0 +1,39 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: UseDotNet@2
+  displayName: 'Use .NET Core runtime'
+  inputs:
+    packageType: 'runtime'
+    version: '6.0.x'
+    includePreviewVersions: false
+- task: richardfennellBM.BM-VSTS-WikiPDFExport-Tasks.WikiPDFExportTask.WikiPdfExportTask@4
+  displayName: 'Export Single File'
+  inputs:
+    cloneRepo: false
+    usePreRelease: false
+    localpath: '$(System.DefaultWorkingDirectory)'
+    singleFile: 'infile.md'
+    outputFile: '$(Build.ArtifactStagingDirectory)/singleFile.pdf'
+    
+
