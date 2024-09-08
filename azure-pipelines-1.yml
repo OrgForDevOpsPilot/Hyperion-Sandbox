@@ -35,5 +35,15 @@ steps:
     localpath: '$(System.DefaultWorkingDirectory)'
     singleFile: 'ReadMe.md'
     outputFile: '$(Build.ArtifactStagingDirectory)/ReadMe.pdf'
-    
+
+- publish: '$(Build.ArtifactStagingDirectory)'
+  artifact: drop
+
+#- task: PublishBuildArtifacts@1
+#  displayName: 'osada'
+#  inputs:
+#    PathtoPublish: '$(Build.ArtifactStagingDirectory)/ReadMe.pdf'
+#    ArtifactName: 'ReadMe'
+#    publishLocation: 'Container'
+
 
