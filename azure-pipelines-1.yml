@@ -27,14 +27,22 @@ steps:
     packageType: 'runtime'
     version: '6.0.x'
     includePreviewVersions: false
+#- task: richardfennellBM.BM-VSTS-WikiPDFExport-Tasks.WikiPDFExportTask.WikiPdfExportTask@4
+#  displayName: 'Export Single File'
+#  inputs:
+#    cloneRepo: false
+#    usePreRelease: false
+#    localpath: '$(System.DefaultWorkingDirectory)'
+#    singleFile: 'ReadMe.md'
+#    outputFile: '$(Build.ArtifactStagingDirectory)/ReadMe.pdf'
+
 - task: richardfennellBM.BM-VSTS-WikiPDFExport-Tasks.WikiPDFExportTask.WikiPdfExportTask@4
   displayName: 'Export Single File'
   inputs:
     cloneRepo: false
     usePreRelease: false
-    localpath: '$(System.DefaultWorkingDirectory)'
-    singleFile: 'ReadMe.md'
-    outputFile: '$(Build.ArtifactStagingDirectory)/ReadMe.pdf'
+    localpath: 'https://freeplanets@dev.azure.com/freeplanets/Hyperion/_git/Hyperion.wiki'
+    outputFile: '$(Build.ArtifactStagingDirectory)/All.pdf'
 
 - publish: '$(Build.ArtifactStagingDirectory)'
   artifact: drop
