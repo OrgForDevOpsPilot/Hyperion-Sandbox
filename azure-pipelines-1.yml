@@ -33,7 +33,7 @@ steps:
     cloneRepo: false
     usePreRelease: false
     localpath: '$(System.DefaultWorkingDirectory)'
-    singleFile: 'infile.md'
-    outputFile: '$(Build.ArtifactStagingDirectory)/singleFile.pdf'
+    singleFile: 'ReadMe.md'
+    outputFile: '$(Build.ArtifactStagingDirectory)/ReadMe.pdf'
     
 
