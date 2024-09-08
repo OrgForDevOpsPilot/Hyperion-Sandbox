@@ -39,9 +39,10 @@ steps:
 - task: richardfennellBM.BM-VSTS-WikiPDFExport-Tasks.WikiPDFExportTask.WikiPdfExportTask@4
   displayName: 'Export Single File'
   inputs:
-    cloneRepo: false
-    usePreRelease: false
-    localpath: 'https://freeplanets@dev.azure.com/freeplanets/Hyperion/_git/Hyperion.wiki'
+    cloneRepo: true
+    repo: 'https://freeplanets@dev.azure.com/freeplanets/Hyperion/_git/Hyperion.wiki'
+    useAgentToken: true
+    localpath: '$(System.DefaultWorkingDirectory)'
     outputFile: '$(Build.ArtifactStagingDirectory)/All.pdf'
 
 - publish: '$(Build.ArtifactStagingDirectory)'
