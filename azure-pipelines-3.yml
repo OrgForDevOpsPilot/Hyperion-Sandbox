@@ -1,25 +1,29 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-
-# Playwright Testing を実行してUIのパフォーマンスをテスト
-- task: PlaywrightTest@1
+# Node.jsのインストール
+- task: NodeTool@0
   inputs:
-    testScript: './tests/playwright/tests.js' # Playwrightテストスクリプトのパス
-    browser: 'chromium'
+    versionSpec: '16.x'  # 必要に応じてNode.jsのバージョンを変更
+
+# Playwrightのインストール
+- script: |
+    npm install
+    npx playwright install
+  displayName: 'Install dependencies and Playwright'
+
+# Playwrightテストの実行
+- script: |
+    npx playwright test
+  displayName: 'Run Playwright tests'
+
+# テスト結果の発行
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/test-results/*.xml'
+    testRunTitle: 'Playwright Tests'
