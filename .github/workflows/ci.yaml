@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.x'
+
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: src/DemoCoreServices/DemoCoreServices
+
+# Run the build, unit tests, and integration tests
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      working-directory: src/DemoCoreServices/DemoCoreServices
+
+    - name: Run unit tests
+      run: dotnet test --configuration Release --collect:"XPlat Code Coverage"
+      working-directory: src/DemoSite.UnitTests
+
+    - name: Run integration tests
+      run: dotnet test --configuration Release
+      working-directory: src/DemoSite.IntegrationTests
+
+# Package and publish the NuGet package to GitHub Packages
+    - name: Package and publish to GitHub Packages
+      run: |
+        dotnet pack --configuration Release --output ./artifacts
+        dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
+      working-directory: src/DemoCoreServices/DemoCoreServices
