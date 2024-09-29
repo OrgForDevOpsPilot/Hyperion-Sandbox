@@ -1,0 +1,28 @@
+trigger:
+- none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: CodeQLAnalysis
+  steps:
+  - script: |
+      wget https://github.com/github/codeql-cli-binaries/releases/download/v2.10.0/codeql-linux64.zip
+      unzip codeql-linux64.zip
+      ./codeql/codeql version
+    displayName: 'Install CodeQL'
+  
+  - script: |
+      ./codeql/codeql database create my-db --language=csharp --source-root=./
+    displayName: 'Create CodeQL Database'
+  
+  - script: |
+      ./codeql/codeql analyze my-db --format=sarif-latest --output=results.sarif
+    displayName: 'Analyze with CodeQL'
+  
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'Sarif'
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/results.sarif'
+    displayName: 'Publish CodeQL Results'
