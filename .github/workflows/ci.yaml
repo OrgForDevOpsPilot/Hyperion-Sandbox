@@ -39,5 +39,5 @@ jobs:
     - name: Package and publish to GitHub Packages
       run: |
         dotnet pack --configuration Release --output ./artifacts
-        dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
+        dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.PACKAGES_TOKEN }}
       working-directory: src/DemoCoreServices/DemoCoreServices
