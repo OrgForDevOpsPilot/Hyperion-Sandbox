@@ -27,7 +27,7 @@ jobs:
       working-directory: src/DemoCoreServices/DemoCoreServices
 
     - name: Run unit tests
-      run: dotnet test --no-restore --configuration Release --collect:"XPlat Code Coverage"
+      run: dotnet test --configuration Release --collect:"XPlat Code Coverage"
       working-directory: src/DemoSite.UnitTests
 
   codeql:
@@ -45,6 +45,9 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: csharp
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
