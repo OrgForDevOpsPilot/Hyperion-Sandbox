@@ -1,4 +1,4 @@
-# this file is used to run the build and test workflow on pull requests
+# this file is used to run the build and test on pull request
 name: pull-request-checks
 
 on:
@@ -21,12 +21,15 @@ jobs:
 
     - name: Install dependencies
       run: dotnet restore
+      working-directory: src/DemoCoreServices/DemoCoreServices
 
     - name: Build
       run: dotnet build --no-restore --configuration Release
+      working-directory: src/DemoCoreServices/DemoCoreServices
 
     - name: Run unit tests
       run: dotnet test --no-restore --configuration Release --collect:"XPlat Code Coverage"
+      working-directory: src/DemoSite.UnitTests
 
   codeql:
     runs-on: ubuntu-latest
