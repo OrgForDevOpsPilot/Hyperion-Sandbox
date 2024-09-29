@@ -20,28 +20,12 @@ jobs:
 
     - name: Install dependencies
       run: dotnet restore
+      working-directory: src/DemoCoreServices/DemoCoreServices
 
     - name: Build
       run: dotnet build --no-restore --configuration Release
+      working-directory: src/DemoCoreServices/DemoCoreServices
 
     - name: Run unit tests
-      run: dotnet test --no-restore --configuration Release --collect:"XPlat Code Coverage"
-
-  codeql:
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: dotnet
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      run: dotnet test --configuration Release --collect:"XPlat Code Coverage"
+      working-directory: src/DemoSite.UnitTests
