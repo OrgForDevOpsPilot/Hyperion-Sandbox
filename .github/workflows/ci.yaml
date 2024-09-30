@@ -22,7 +22,6 @@ jobs:
       run: dotnet restore
       working-directory: src/DemoCoreServices/DemoCoreServices
 
-# Run the build, unit tests, and integration tests
     - name: Build
       run: dotnet build --no-restore --configuration Release
       working-directory: src/DemoCoreServices/DemoCoreServices
@@ -35,9 +34,25 @@ jobs:
       run: dotnet test --configuration Release
       working-directory: src/DemoSite.IntegrationTests
 
-# Package and publish the NuGet package to GitHub Packages
+    # バージョンを自動インクリメントするためのステップ
+    - name: Increment version
+      id: version
+      run: |
+        # 最新のタグを取得してバージョンをインクリメント
+        git fetch --tags
+        LATEST_TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+        # "v"を取り除く
+        VERSION=${LATEST_TAG#v}
+        # セマンティックバージョンをパッチレベルでインクリメント
+        IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
+        PATCH_VERSION=$((VERSION_PARTS[2] + 1))
+        NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH_VERSION"
+        echo "New version: $NEW_VERSION"
+        echo "##[set-output name=NEW_VERSION;]$NEW_VERSION"
+
+    # NuGetパッケージを生成し、GitHub Packagesに公開
     - name: Package and publish to GitHub Packages
       run: |
-        dotnet pack --configuration Release --output ./artifacts
-        dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.PACKAGES_TOKEN }}
+        dotnet pack --configuration Release /p:PackageVersion=${{ steps.version.outputs.NEW_VERSION }} --output ./artifacts
+        dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.PACKAGES_TOKEN }} --skip-duplicate
       working-directory: src/DemoCoreServices/DemoCoreServices
