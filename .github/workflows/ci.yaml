@@ -40,13 +40,7 @@ jobs:
       run: |
         # 最新のタグを取得してバージョンをインクリメント
         git fetch --tags
-        LATEST_TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
-        # "v"を取り除く
-        VERSION=${LATEST_TAG#v}
-        # セマンティックバージョンをパッチレベルでインクリメント
-        IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
-        PATCH_VERSION=$((VERSION_PARTS[2] + 1))
-        NEW_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$PATCH_VERSION"
+        NEW_VERSION=$(git describe --tags --abbrev=0 || echo "v0.0.0")
         echo "New version: $NEW_VERSION"
         echo "##[set-output name=NEW_VERSION;]$NEW_VERSION"
 
