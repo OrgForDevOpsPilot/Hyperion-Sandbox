@@ -10,10 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     # GitHub Packagesにパッケージを公開するための権限をGitHub Actionsに付与する
     permissions:      
-      packages: write
+      packages: read, write
       contents: read
 
-    steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
@@ -55,6 +54,23 @@ jobs:
         echo "Version without 'v': $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo ${{secrets.GITHUB_TOKEN}}
+    
+    # コミット履歴からタグを取得して作成日時の新しい順にソートし、最新のタグを取得する。
+    # v.X.X.Xの形式のタグのみを取得する
+    # タグが取得できない場合はv0.0.0を設定する
+    - name: Get latest version
+      id: get_version
+      run: |
+        git fetch --tags
+        LATEST_TAG=$(git tag --sort=-creatordate | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || echo "v0.0.0")
+        if [ -z "$LATEST_TAG" ]; then
+          LATEST_TAG="v0.0.0"
+        fi
+        # 'v'を取り除く
+        VERSION=${LATEST_TAG#v}
+        echo "Latest tag: $LATEST_TAG"
+        echo "Version without 'v': $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
     
     # 前のステップで取得したタグを利用してパッケージを作成してGitHub Packagesに公開する
     - name: Package and publish to GitHub Packages
