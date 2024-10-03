@@ -11,6 +11,7 @@ jobs:
     # GitHub Packagesにパッケージを公開するための権限をGitHub Actionsに付与する
     permissions:      
       packages: write
+      contents: read
 
     steps:
     - name: Checkout code
