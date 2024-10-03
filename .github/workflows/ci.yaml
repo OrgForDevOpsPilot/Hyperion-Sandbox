@@ -32,27 +32,27 @@ jobs:
     - name: Run unit tests
       run: dotnet test --configuration Release --collect:"XPlat Code Coverage"
       working-directory: src/DemoSite.UnitTests
-
+    
     - name: Run integration tests
       run: dotnet test --configuration Release
       working-directory: src/DemoSite.IntegrationTests
-
-# コミット履歴から最新のタグを取得して作成日時の新しい順にソートして最新のタグを取得する。タグの形式はvX.X.Xであることを前提とするが、該当するタグがない場合はv0.0.0を返す
-# 取得したタグは環境変数にセットしてパッケージのバージョンとして利用する
-- name: Get latest version
-  id: version
-  run: |
-    git fetch --tags
-    LATEST_TAG=$(git tag --sort=-creatordate | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || echo "v0.0.0")
-    if [ -z "$LATEST_TAG" ]; then
-      LATEST_TAG="v0.0.0"
-    fi
-    echo "Latest tag: $LATEST_TAG"
-    echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-
-# 前のステップで取得したタグを利用してパッケージを作成してGitHub Packagesに公開する
-- name: Package and publish to GitHub Packages
-  run: |
-    dotnet pack --configuration Release /p:PackageVersion=${{ env.LATEST_TAG }} --output ./artifacts
-    dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
-  working-directory: src/DemoCoreServices/DemoCoreServices
+    
+    # コミット履歴から最新のタグを取得して作成日時の新しい順にソートして最新のタグを取得する。タグの形式はvX.X.Xであることを前提とするが、該当するタグがない場合はv0.0.0を返す
+    # 取得したタグは環境変数にセットしてパッケージのバージョンとして利用する
+    - name: Get latest version
+      id: version
+      run: |
+        git fetch --tags
+        LATEST_TAG=$(git tag --sort=-creatordate | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || echo "v0.0.0")
+        if [ -z "$LATEST_TAG" ]; then
+          LATEST_TAG="v0.0.0"
+        fi
+        echo "Latest tag: $LATEST_TAG"
+        echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+    
+    # 前のステップで取得したタグを利用してパッケージを作成してGitHub Packagesに公開する
+    - name: Package and publish to GitHub Packages
+      run: |
+        dotnet pack --configuration Release /p:PackageVersion=${{ env.LATEST_TAG }} --output ./artifacts
+        dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+      working-directory: src/DemoCoreServices/DemoCoreServices
