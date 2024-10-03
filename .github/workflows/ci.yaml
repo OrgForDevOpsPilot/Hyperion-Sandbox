@@ -54,6 +54,7 @@ jobs:
         echo "Latest tag: $LATEST_TAG"
         echo "Version without 'v': $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo ${{secrets.GITHUB_TOKEN}}
     
     # 前のステップで取得したタグを利用してパッケージを作成してGitHub Packagesに公開する
     - name: Package and publish to GitHub Packages
