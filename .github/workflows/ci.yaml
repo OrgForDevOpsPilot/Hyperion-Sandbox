@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     # GitHub Packagesにパッケージを公開するための権限をGitHub Actionsに付与する
     permissions:      
-      packages: read, write
+      packages: write
       contents: read
 
     - name: Checkout code
