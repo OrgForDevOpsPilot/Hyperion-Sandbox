@@ -37,8 +37,29 @@ jobs:
       run: dotnet test --configuration Release
       working-directory: src/DemoSite.IntegrationTests
     
-    # コミット履歴から最新のタグを取得して作成日時の新しい順にソートして最新のタグを取得する。タグの形式はvX.X.Xであることを前提とするが、該当するタグがない場合はv0.0.0を返す
-    # 取得したタグは環境変数にセットしてパッケージのバージョンとして利用する
+    # コミット履歴からタグを取得して作成日時の新しい順にソートし、最新のタグを取得する。
+    # v.X.X.Xの形式のタグのみを取得する
+    # タグが取得できない場合はv0.0.0を設定する
+    - name: Get latest version
+      id: version
+      run: |
+        git fetch --tags
+        LATEST_TAG=$(git tag --sort=-creatordate | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || echo "v0.0.0")
+        if [ -z "$LATEST_TAG" ]; then
+          LATEST_TAG="v0.0.0"
+        fi
+        # 'v'を取り除く
+        VERSION=${LATEST_TAG#v}
+        echo "Latest tag: $LATEST_TAG"
+        echo "Version without 'v': $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+    
+    # 前のステップで取得したタグを利用してパッケージを作成してGitHub Packagesに公開する
+    - name: Package and publish to GitHub Packages
+      run: |
+        dotnet pack --configuration Release /p:PackageVersion=${{ env.VERSION }} --output ./artifacts
+        dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+      working-directory: src/DemoCoreServices/DemoCoreServices
     - name: Get latest version
       id: version
       run: |
