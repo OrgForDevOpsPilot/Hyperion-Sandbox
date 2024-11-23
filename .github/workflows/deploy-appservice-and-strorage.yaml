@@ -26,7 +26,7 @@ jobs:
               with:
                   subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
                   resourceGroupName: ${{ vars.AZURE_RG_BICEP_TEST }}
-                  template: ../deploy-app-service-and-storage.bicep
+                  template: .github/bicep/deploy-app-service-and-storage.bicep
                   parameters: > 
                     # prodかnonprodかを指定                   
                     environmentType=${{ vars.ENVIRONMENT_TYPE }}
