@@ -25,12 +25,11 @@ jobs:
               uses: azure/arm-deploy@v1
               with:
                   subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-                  resourceGroupName: ${{ secrets.AZURE_RG_BICEP_TEST }}
-                  template: .github/bicep/deploy-app-service-and-storage.bicep
+                  resourceGroupName: ${{ vars.AZURE_RG_BICEP_TEST }}
+                  template: ../deploy-app-service-and-storage.bicep
                   parameters: > 
                     # prodかnonprodかを指定                   
-                    environmentType=${{ secrets.ENVIRONMENT_TYPE }}
+                    environmentType=${{ vars.ENVIRONMENT_TYPE }}
                     # ストレージアカウントをデプロイするかどうか。true/false
-                    isDeployStorageAccount=${{ secrets.IS_DEPLOY_STORAGE_ACCOUNT }}
-                    resourceNameSuffix=${{ secrets.RESOURCE_NAME_SUFFIX }}                    
+                    isDeployStorageAccount=${{ vars.IS_DEPLOY_STORAGE_ACCOUNT }}                    
                   failOnStdErr: false
