@@ -27,7 +27,7 @@ jobs:
                   subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
                   resourceGroupName: ${{ vars.AZURE_RG_BICEP_TEST }}
                   template: .github/bicep/deploy-app-service-and-storage.bicep
-                  parameters: |                      
+                  parameters: >                     
                     environmentType=${{ vars.ENVIRONMENT_TYPE }}                
                     isDeployStorageAccount=${{ vars.IS_DEPLOY_STORAGE_ACCOUNT }}                    
                   failOnStdErr: false
