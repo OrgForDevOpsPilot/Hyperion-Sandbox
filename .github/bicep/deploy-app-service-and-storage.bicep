@@ -12,7 +12,7 @@ param isDeployStorageAccount bool
 
 param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
-var appServiceAppName = '$testapp-{resourceNameSuffix}'
+var appServiceAppName = 'testapp-${resourceNameSuffix}'
 var appServicePlanName = 'testapp-plan-${environmentType}'
 var manualsStorageAccountName = 'test-app-${resourceNameSuffix}'
 
