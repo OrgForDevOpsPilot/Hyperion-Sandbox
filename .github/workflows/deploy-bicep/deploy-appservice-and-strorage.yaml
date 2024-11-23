@@ -1,4 +1,11 @@
-on: [push]
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'bicep/**'
+      
 name: Deploy app service and storage
 jobs:
     build-and-deploy:
