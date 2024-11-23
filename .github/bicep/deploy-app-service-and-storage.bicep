@@ -1,5 +1,6 @@
 param location string = resourceGroup().location
 
+// 環境タイプを指定
 @allowed([ 'nonprod', 'prod' ])
 param environmentType string
 
