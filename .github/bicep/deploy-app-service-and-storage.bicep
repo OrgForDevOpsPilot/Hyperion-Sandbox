@@ -14,7 +14,7 @@ param resourceNameSuffix string = uniqueString(resourceGroup().id)
 
 var appServiceAppName = 'testapp-${resourceNameSuffix}'
 var appServicePlanName = 'testapp-plan-${environmentType}'
-var manualsStorageAccountName = 'test-app-${resourceNameSuffix}'
+var manualsStorageAccountName = 'testapp${resourceNameSuffix}'
 
 // 環境ごとの設定
 var environmentConfigurationMap = {

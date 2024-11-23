@@ -31,12 +31,6 @@ jobs:
                     # prodかnonprodかを指定                   
                     environmentType=${{ secrets.ENVIRONMENT_TYPE }}
                     # ストレージアカウントをデプロイするかどうか。true/false
-                    isDeployStorageAccount=${{ secrets.IS_DEPLOY_STORAGE_ACCOUNT }}                    
-                  failOnStdErr: true
-
-            # Capture and log standard error output
-            - name: Output deployment logs
-              if: failure()
-              run: |
-                echo "Deployment failed. Here are the logs:"
-                cat $GITHUB_WORKSPACE/deploy.log
+                    isDeployStorageAccount=${{ secrets.IS_DEPLOY_STORAGE_ACCOUNT }}
+                    resourceNameSuffix=${{ secrets.RESOURCE_NAME_SUFFIX }}                    
+                  failOnStdErr: false
