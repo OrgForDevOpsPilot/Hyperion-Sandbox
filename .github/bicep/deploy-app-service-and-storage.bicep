@@ -1,3 +1,4 @@
+
 param location string = resourceGroup().location
 
 // 環境タイプを指定
