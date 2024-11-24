@@ -6,6 +6,9 @@ on:
       - 'bicep/**'
       
 name: Deploy app service and storage
+permissions:
+  id-token: write
+  contents: read
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest

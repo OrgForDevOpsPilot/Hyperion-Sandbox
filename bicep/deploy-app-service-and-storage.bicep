@@ -1,4 +1,4 @@
-// locationの指定
+// locationの指定。リソースグループのロケーションを利用
 param location string = resourceGroup().location
 
 // 環境タイプを指定
