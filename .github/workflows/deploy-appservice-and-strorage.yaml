@@ -25,7 +25,7 @@ jobs:
               uses: azure/arm-deploy@v1
               with:
                   subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-                  resourceGroupName: ${{ vars.AZURE_RG_BICEP_TEST }}
+                  resourceGroupName: ${{ vars.AZURE_RG_BICEP_NAME }}
                   template: .github/bicep/deploy-app-service-and-storage.bicep
                   parameters: >                     
                     environmentType=${{ vars.ENVIRONMENT_TYPE }}                
