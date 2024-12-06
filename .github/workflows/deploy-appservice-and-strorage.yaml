@@ -30,7 +30,7 @@ jobs:
               with:
                 subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
                 resourceGroupName: ${{ vars.AZURE_RG_NAME }}
-                template: bicep/deploy-app-service-and-storage.bicep
+                template: infrastructure/deploy-app-service-and-storage.bicep
                 parameters: >                     
                   environmentType=${{ vars.ENVIRONMENT_TYPE }}                
                   isDeployStorageAccount=${{ vars.IS_DEPLOY_STORAGE_ACCOUNT }}                    
