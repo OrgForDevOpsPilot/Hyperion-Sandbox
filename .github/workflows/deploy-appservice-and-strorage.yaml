@@ -25,6 +25,7 @@ jobs:
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}            
 
             # Deploy Bicep file
+            # Specify the Bicep file path and parameters
             - name: deploy              
               uses: azure/arm-deploy@v1
               with:
