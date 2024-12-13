@@ -1,0 +1,24 @@
+{
+    "name": "C# Development Environment",
+    "image": "mcr.microsoft.com/dotnet/sdk:8.0", // .NET 8.0 の公式 Dev Container イメージ
+    "features": {
+      "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+    "customizations": {
+      "vscode": {
+        "settings": {
+          "workbench.colorTheme": "Visual Studio Dark", // ダークテーマを設定
+          "editor.formatOnSave": true          // 保存時にコードを自動フォーマット
+        },
+        "extensions": [
+          "ms-dotnettools.csdevkit",           // C# Dev Kit
+          "github.copilot",                    // GitHub Copilot
+          "github.copilot-azure",               // GitHub Copilot for Azure
+          "ms-azuretools.vscode-bicep",         // Bicepの記載をサポート
+          "redhat.vscode-yaml"                 // YAMLの記載をサポート
+        ]
+      }
+    },
+    "postCreateCommand": "dotnet restore", // コンテナ作成後に依存関係を復元
+    "remoteUser": "vscode" // コンテナ内のユーザー
+  }
