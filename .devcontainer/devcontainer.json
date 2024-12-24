@@ -12,7 +12,9 @@
           "github.copilot",                
           "github.copilot-azure",          
           "ms-azuretools.vscode-bicep",    
-          "redhat.vscode-yaml"             
+          "redhat.vscode-yaml",
+          "shd101wyy.markdown-preview-enhanced",
+          "auchenberg.vscode-browser-preview"  
         ]
       }
     },
